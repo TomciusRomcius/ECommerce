@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace StoreService.Presentation.Controllers.ProductStoreLocation.dtos;
+namespace StoreService.Presentation.Controllers.AvailableProducts.dtos;
 
 public class GetProductsFromStoreDto
 {

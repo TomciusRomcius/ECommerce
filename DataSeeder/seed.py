@@ -67,7 +67,7 @@ def _load_product_links(client: ApiClient, store_location_id: int) -> set[int]:
 
     while True:
         data = client.get_json(
-            "/storeservice/productstorelocation",
+            "/storeservice/availableproducts",
             params={"storeLocationId": store_location_id, "pageNumber": page_number},
         )
         if not isinstance(data, dict):
@@ -213,7 +213,7 @@ def link_product_to_store(
         return False
 
     result = client.post_json(
-        "/storeservice/productstorelocation",
+        "/storeservice/availableproducts",
         {
             "storeLocationId": store_location_id,
             "productId": product_id,

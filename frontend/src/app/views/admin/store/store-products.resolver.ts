@@ -20,7 +20,7 @@ export const storeProductsResolver: ResolveFn<PageModel<ProductModel>> = (
   const params: Record<string, string> = { storeLocationId, pageNumber, searchText };
 
   return unwrapApiResponse(
-    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
+    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/availableproducts`, {
       params,
     }));
 }

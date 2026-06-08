@@ -23,7 +23,7 @@ public class StoreDetailsService(
         string query = string.Join(
             "&",
             ids.Select(id => $"ids={Uri.EscapeDataString(id.ToString())}"));
-        string url = $"{hosts.Value.StoreServiceUrl}/productstorelocation/by-product-ids?{query}";
+        string url = $"{hosts.Value.StoreServiceUrl}/availableproducts/by-product-ids?{query}";
         logger.LogDebug("Fetching store details from {Url}", url);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);

@@ -146,7 +146,7 @@ public class StoreProductsService(
             query = query.Add("ids", id.ToString());
         }
 
-        string storeUrl = $"{hosts.Value.StoreServiceUrl}/productstorelocation/by-product-ids{query}";
+        string storeUrl = $"{hosts.Value.StoreServiceUrl}/availableproducts/by-product-ids{query}";
         logger.LogDebug("Fetching store details from {Url}", storeUrl);
 
         using HttpResponseMessage response = await httpClient.GetAsync(storeUrl, cancellationToken);
@@ -165,7 +165,7 @@ public class StoreProductsService(
         string? authorizationHeader,
         CancellationToken cancellationToken = default)
     {
-        string url = $"{hosts.Value.StoreServiceUrl}/productstorelocation";
+        string url = $"{hosts.Value.StoreServiceUrl}/availableproducts";
         logger.LogDebug("Updating product stock at {Url}", url);
 
         using var request = new HttpRequestMessage(HttpMethod.Put, url);
@@ -187,7 +187,7 @@ public class StoreProductsService(
         string? authorizationHeader,
         CancellationToken cancellationToken = default)
     {
-        string url = $"{hosts.Value.StoreServiceUrl}/productstorelocation";
+        string url = $"{hosts.Value.StoreServiceUrl}/availableproducts";
         logger.LogDebug("Adding product to store at {Url}", url);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, url);

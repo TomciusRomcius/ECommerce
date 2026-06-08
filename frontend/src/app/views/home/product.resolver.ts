@@ -22,7 +22,7 @@ export const productResolver: ResolveFn<PageModel<ProductModel>> = (
   }
 
   return unwrapApiResponse(
-    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
+    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/availableproducts`, {
       params,
     }));
 }

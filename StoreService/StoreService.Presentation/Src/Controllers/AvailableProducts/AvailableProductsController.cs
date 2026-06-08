@@ -5,20 +5,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreService.Application.UseCases.AvailableProducts.Queries;
 using StoreService.Application.UseCases.ProductStoreLocations.Commands;
-using GetProductsFromStoreQuery = StoreService.Application.UseCases.ProductStoreLocations.Queries.GetProductsFromStoreQuery;
 using StoreService.Domain.Entities;
-using StoreService.Presentation.Controllers.ProductStoreLocation.dtos;
+using StoreService.Presentation.Controllers.AvailableProducts.dtos;
 using StoreService.Presentation.Utils;
 
-namespace StoreService.Presentation.Controllers.ProductStoreLocation;
+namespace StoreService.Presentation.Controllers.AvailableProducts;
 
 [ApiController]
 [Route("[controller]")]
-public class ProductStoreLocationController : ControllerBase
+public class AvailableProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public ProductStoreLocationController(IMediator mediator)
+    public AvailableProductsController(IMediator mediator)
     {
         _mediator = mediator;
     }

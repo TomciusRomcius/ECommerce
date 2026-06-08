@@ -19,7 +19,7 @@ export class StoreProductsService {
 
   getProducts(pageNumber: number, pageSize = 10): Observable<PageModel<ProductModel>> {
     return unwrapApiResponse(
-      this.http.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
+      this.http.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/availableproducts`, {
         params: {
           pageNumber,
           pageSize,
@@ -29,10 +29,10 @@ export class StoreProductsService {
   }
 
   updateStock(request: UpdateProductStockRequest): Observable<void> {
-    return this.http.put<void>(`${environment.backendApi}/storeproducts`, request);
+    return this.http.put<void>(`${environment.backendApi}/availableproducts`, request);
   }
 
   addProductToStore(request: UpdateProductStockRequest): Observable<void> {
-    return this.http.post<void>(`${environment.backendApi}/storeproducts`, request);
+    return this.http.post<void>(`${environment.backendApi}/availableproducts`, request);
   }
 }

@@ -7,13 +7,13 @@ namespace BFF.StoreProducts;
 
 [ApiController]
 [Route("[controller]")]
-public class StoreProductsController(
+public class AvailableProductsController(
     IStoreProductsService storeProductsService,
-    ILogger<StoreProductsController> logger) : ControllerBase
+    ILogger<AvailableProductsController> logger) : ControllerBase
 {
     /// <summary>
     /// Returns products merged with store details from StoreService.
-    /// Fetches the product page from ProductService, then enriches via productstorelocation/by-product-ids.
+    /// Fetches the product page from ProductService, then enriches via availableproducts/by-product-ids.
     /// When storeLocationId is set, only products stocked at that store are included.
     /// </summary>
     [HttpGet]
