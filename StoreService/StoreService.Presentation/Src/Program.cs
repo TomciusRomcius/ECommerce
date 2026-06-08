@@ -6,9 +6,11 @@ using EventSystemHelper.Kafka.Utils;
 using Microsoft.Extensions.Options;
 using StoreService.Application;
 using StoreService.Application.Interfaces;
+using StoreService.Application.Mapping;
 using StoreService.Application.Persistence;
 using StoreService.Application.Services;
 using StoreService.Presentation.Jobs;
+using StoreService.Presentation.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,9 @@ else
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(
+    typeof(ApplicationMappingProfile).Assembly,
+    typeof(PresentationMappingProfile).Assembly);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MediatREntryPoint).Assembly));
 builder.Services.AddApplicationAuth(builder);
 builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();

@@ -1,3 +1,4 @@
+using AutoMapper;
 using ECommerceBackend.Utils.Jwt;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +16,12 @@ namespace StoreService.Presentation.Controllers.StoreLocation;
 public class StoreLocation : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public StoreLocation(IMediator mediator)
+    public StoreLocation(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -45,7 +48,7 @@ public class StoreLocation : ControllerBase
     public async Task<IActionResult> CreateStoreLocation([FromBody] RequestCreateLocationDto createLocationDto)
     {
         var result = await _mediator.Send(new CreateStoreLocationCommand(
-            new CreateStoreLocationModel(createLocationDto.DisplayName, createLocationDto.Address)
+            _mapper.Map<CreateStoreLocationModel>(createLocationDto)
         ));
 
         return Created(nameof(CreateStoreLocation), result);
@@ -56,8 +59,7 @@ public class StoreLocation : ControllerBase
     public async Task<IActionResult> ModifyStoreLocation([FromBody] RequestModifyLocationDto modifyLocationDto)
     {
         await _mediator.Send(new UpdateStoreLocationCommand(
-            new UpdateStoreLocationModel(modifyLocationDto.StoreLocationId, modifyLocationDto.DisplayName,
-                modifyLocationDto.Address)
+            _mapper.Map<UpdateStoreLocationModel>(modifyLocationDto)
         ));
 
         return Ok();

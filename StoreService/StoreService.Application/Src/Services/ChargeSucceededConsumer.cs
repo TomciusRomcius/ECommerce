@@ -1,3 +1,4 @@
+using AutoMapper;
 using Confluent.Kafka;
 using ECommerceBackend.EventTypes;
 using EventSystemHelper.Kafka.Services;
@@ -17,16 +18,20 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
     private readonly KafkaConfiguration _kafkaConfiguration;
     private readonly IOrderDetailsService _orderDetailsService;
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public ChargeSucceededConsumer(ILogger<ChargeSucceededConsumer> logger,
+    public ChargeSucceededConsumer(
+        ILogger<ChargeSucceededConsumer> logger,
         IOptions<KafkaConfiguration> kafkaConfiguration,
         IOrderDetailsService orderDetailsService,
-        IMediator mediator)
+        IMediator mediator,
+        IMapper mapper)
     {
         _logger = logger;
         _kafkaConfiguration = kafkaConfiguration.Value;
         _orderDetailsService = orderDetailsService;
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     public async Task TryConsumeAndHandle(CancellationToken cancellationToken)
@@ -50,9 +55,8 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
                 }
 
                 GetOrdersResponseType response = await _orderDetailsService.FetchAsync(chargeEvent.UserId, chargeEvent.OrderId, cancellationToken);
-                List<ProductStoreLocationEntity> updater = response.OrderProducts
-                    .Select(x => new ProductStoreLocationEntity(x.StoreLocationId, x.ProductId, x.Quantity))
-                    .ToList();
+                List<ProductStoreLocationEntity> updater =
+                    _mapper.Map<List<ProductStoreLocationEntity>>(response.OrderProducts);
 
                 await _mediator.Send(new UpdateProductsStockCommand(updater), cancellationToken);
             }

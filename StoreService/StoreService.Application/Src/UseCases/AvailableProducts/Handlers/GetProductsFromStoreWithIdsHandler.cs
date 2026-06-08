@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,13 +12,16 @@ public class GetProductsFromStoreWithIdsHandler
 {
     private readonly DatabaseContext _context;
     private readonly ILogger<GetProductsFromStoreWithIdsHandler> _logger;
+    private readonly IMapper _mapper;
 
     public GetProductsFromStoreWithIdsHandler(
         ILogger<GetProductsFromStoreWithIdsHandler> logger,
-        DatabaseContext context)
+        DatabaseContext context,
+        IMapper mapper)
     {
         _logger = logger;
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<List<ProductStoreLocationDetails>> Handle(
@@ -43,7 +47,7 @@ public class GetProductsFromStoreWithIdsHandler
                     .Sum(rp => (int?)rp.Stock) ?? 0,
             });
 
-        List<ProductStoreLocationDetails> result = await _context.ProductStoreLocations
+        List<ProductStoreLocationQueryRow> rows = await _context.ProductStoreLocations
             .AsNoTracking()
             .Where(psl => request.ProductIds.Contains(psl.ProductId))
             .Join(
@@ -55,7 +59,7 @@ public class GetProductsFromStoreWithIdsHandler
                 reservedCounts,
                 row => new { row.psl.StoreLocationId, row.psl.ProductId },
                 reserved => new { reserved.StoreLocationId, reserved.ProductId },
-                (row, reserved) => new ProductStoreLocationDetails
+                (row, reserved) => new ProductStoreLocationQueryRow
                 {
                     ProductId = row.psl.ProductId,
                     StoreLocationId = row.psl.StoreLocationId,
@@ -64,6 +68,8 @@ public class GetProductsFromStoreWithIdsHandler
                     Address = row.store.Address,
                 })
             .ToListAsync(cancellationToken);
+
+        List<ProductStoreLocationDetails> result = _mapper.Map<List<ProductStoreLocationDetails>>(rows);
 
         _logger.LogDebug("Retrieved product store locations: {@Result}", result);
         return result;

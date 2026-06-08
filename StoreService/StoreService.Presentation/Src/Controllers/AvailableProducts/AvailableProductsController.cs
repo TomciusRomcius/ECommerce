@@ -1,3 +1,4 @@
+using AutoMapper;
 using ECommerceBackend.Utils.Jwt;
 using ECommerceBackend.Utils.Pagination;
 using MediatR;
@@ -7,6 +8,7 @@ using StoreService.Application.UseCases.AvailableProducts.Queries;
 using StoreService.Application.UseCases.ProductStoreLocations.Commands;
 using StoreService.Domain.Entities;
 using StoreService.Presentation.Controllers.AvailableProducts.dtos;
+using StoreService.Presentation.Mapping;
 using StoreService.Presentation.Utils;
 
 namespace StoreService.Presentation.Controllers.AvailableProducts;
@@ -16,10 +18,12 @@ namespace StoreService.Presentation.Controllers.AvailableProducts;
 public class AvailableProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public AvailableProductsController(IMediator mediator)
+    public AvailableProductsController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     /// <param name="query">Store location id and pagination parameters</param>
@@ -32,13 +36,8 @@ public class AvailableProductsController : ControllerBase
             new GetProductsFromStoreQuery(query.StoreLocationId, query.PageNumber, query.PageSize),
             cancellationToken);
 
-        Page<ProductStoreLocationItemDto> response = new()
-        {
-            Data = page.Data.Select(ToDto).ToList(),
-            TotalCount = page.TotalCount,
-            HasNextPage = page.HasNextPage,
-            HasPrevPage = page.HasPrevPage,
-        };
+        Page<ProductStoreLocationItemDto> response =
+            _mapper.MapPage<ProductStoreLocationEntity, ProductStoreLocationItemDto>(page);
 
         return Ok(response);
     }
@@ -51,23 +50,11 @@ public class AvailableProductsController : ControllerBase
         return Ok(result);
     }
 
-    private static ProductStoreLocationItemDto ToDto(ProductStoreLocationEntity entity) =>
-        new()
-        {
-            StoreLocationId = entity.StoreLocationId,
-            ProductId = entity.ProductId,
-            Stock = entity.Stock,
-        };
-
     [Authorize(Roles = RoleTypes.Admin)]
     [HttpPost]
     public async Task<IActionResult> AddProductToStore([FromBody] AddProductToStoreDto addProductToStoreDto)
     {
-        var model = new ProductStoreLocationEntity(
-            addProductToStoreDto.StoreLocationId,
-            addProductToStoreDto.ProductId,
-            addProductToStoreDto.Stock
-        );
+        var model = _mapper.Map<ProductStoreLocationEntity>(addProductToStoreDto);
 
         var error = await _mediator.Send(new AddProductToStoreCommand(model));
         return error == null ? Ok() : ControllerUtils.ResultErrorToResponse(error);
@@ -89,11 +76,7 @@ public class AvailableProductsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> ModifyProductFromStore([FromBody] AddProductToStoreDto addProductToStoreDto)
     {
-        var model = new ProductStoreLocationEntity(
-            addProductToStoreDto.StoreLocationId,
-            addProductToStoreDto.ProductId,
-            addProductToStoreDto.Stock
-        );
+        ProductStoreLocationEntity model = _mapper.Map<ProductStoreLocationEntity>(addProductToStoreDto);
 
         await _mediator.Send(new UpdateProductStockCommand(model));
         return Ok();
