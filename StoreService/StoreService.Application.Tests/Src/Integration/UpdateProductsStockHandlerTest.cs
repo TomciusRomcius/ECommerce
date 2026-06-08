@@ -5,8 +5,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using StoreService.Application.Persistence;
-using StoreService.Application.UseCases.Store.Commands;
-using StoreService.Application.UseCases.Store.Handlers;
+using StoreService.Application.UseCases.AvailableProducts.Handlers;
+using StoreService.Application.UseCases.ProductStoreLocations.Commands;
+using StoreService.Application.UseCases.ProductStoreLocations.Handlers;
 using StoreService.Domain.Entities;
 using Testcontainers.PostgreSql;
 

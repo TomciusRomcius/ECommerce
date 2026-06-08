@@ -3,10 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StoreService.Application.Persistence;
-using StoreService.Application.UseCases.Store.Commands;
+using StoreService.Application.UseCases.ProductStoreLocations.Commands;
 using StoreService.Domain.Entities;
 
-namespace StoreService.Application.UseCases.Store.Handlers;
+namespace StoreService.Application.UseCases.ProductStoreLocations.Handlers;
 
 // TODO: known limitation: if two users finish the payment session the stock can become negative so this should be addressed.
 

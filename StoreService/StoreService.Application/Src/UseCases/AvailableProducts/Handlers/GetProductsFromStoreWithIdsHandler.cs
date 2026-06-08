@@ -2,18 +2,18 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StoreService.Application.Persistence;
-using StoreService.Application.UseCases.Store.Queries;
+using StoreService.Application.UseCases.AvailableProducts.Queries;
 
-namespace StoreService.Application.UseCases.Store.Handlers;
+namespace StoreService.Application.UseCases.AvailableProducts.Handlers;
 
-public class GetProductStoreLocationsByProductIdsHandler
-    : IRequestHandler<GetProductStoreLocationsByProductIdsQuery, List<ProductStoreLocationDetails>>
+public class GetProductsFromStoreWithIdsHandler
+    : IRequestHandler<GetProductsFromStoreWithIdsQuery, List<ProductStoreLocationDetails>>
 {
     private readonly DatabaseContext _context;
-    private readonly ILogger<GetProductStoreLocationsByProductIdsHandler> _logger;
+    private readonly ILogger<GetProductsFromStoreWithIdsHandler> _logger;
 
-    public GetProductStoreLocationsByProductIdsHandler(
-        ILogger<GetProductStoreLocationsByProductIdsHandler> logger,
+    public GetProductsFromStoreWithIdsHandler(
+        ILogger<GetProductsFromStoreWithIdsHandler> logger,
         DatabaseContext context)
     {
         _logger = logger;
@@ -21,7 +21,7 @@ public class GetProductStoreLocationsByProductIdsHandler
     }
 
     public async Task<List<ProductStoreLocationDetails>> Handle(
-        GetProductStoreLocationsByProductIdsQuery request,
+        GetProductsFromStoreWithIdsQuery request,
         CancellationToken cancellationToken)
     {
         _logger.LogTrace("Entered Handle");

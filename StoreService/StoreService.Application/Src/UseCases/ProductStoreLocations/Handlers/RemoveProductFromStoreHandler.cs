@@ -2,9 +2,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StoreService.Application.Persistence;
-using StoreService.Application.UseCases.Store.Commands;
+using StoreService.Application.UseCases.ProductStoreLocations.Commands;
 
-namespace StoreService.Application.UseCases.Store.Handlers;
+namespace StoreService.Application.UseCases.ProductStoreLocations.Handlers;
 
 public class RemoveProductFromStoreHandler : IRequestHandler<RemoveProductFromStoreCommand>
 {

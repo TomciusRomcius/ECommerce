@@ -3,8 +3,9 @@ using ECommerceBackend.Utils.Pagination;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StoreService.Application.UseCases.Store.Commands;
-using StoreService.Application.UseCases.Store.Queries;
+using StoreService.Application.UseCases.AvailableProducts.Queries;
+using StoreService.Application.UseCases.ProductStoreLocations.Commands;
+using GetProductsFromStoreQuery = StoreService.Application.UseCases.ProductStoreLocations.Queries.GetProductsFromStoreQuery;
 using StoreService.Domain.Entities;
 using StoreService.Presentation.Controllers.ProductStoreLocation.dtos;
 using StoreService.Presentation.Utils;
@@ -47,7 +48,7 @@ public class ProductStoreLocationController : ControllerBase
     public async Task<IActionResult> GetByProductIds([FromQuery] List<int> ids)
     {
         List<ProductStoreLocationDetails> result =
-            await _mediator.Send(new GetProductStoreLocationsByProductIdsQuery(ids));
+            await _mediator.Send(new GetProductsFromStoreWithIdsQuery(ids));
         return Ok(result);
     }
 

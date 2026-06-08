@@ -1,8 +1,8 @@
 using MediatR;
 
-namespace StoreService.Application.UseCases.Store.Queries;
+namespace StoreService.Application.UseCases.AvailableProducts.Queries;
 
-public record GetProductStoreLocationsByProductIdsQuery(List<int> ProductIds)
+public record GetProductsFromStoreWithIdsQuery(List<int> ProductIds)
     : IRequest<List<ProductStoreLocationDetails>>;
 
 public class ProductStoreLocationDetails

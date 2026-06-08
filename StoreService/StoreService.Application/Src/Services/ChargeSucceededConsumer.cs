@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StoreService.Application.Interfaces;
-using StoreService.Application.UseCases.Store.Commands;
+using StoreService.Application.UseCases.ProductStoreLocations.Commands;
 using StoreService.Domain.Entities;
 
 namespace StoreService.Application.Services;

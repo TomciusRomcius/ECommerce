@@ -1,7 +1,7 @@
 using MediatR;
 using StoreService.Domain.Entities;
 
-namespace StoreService.Application.UseCases.Store.Commands;
+namespace StoreService.Application.UseCases.ProductStoreLocations.Commands;
 
 /// <summary>
 ///     Subtracts stock from all ProductStoreLocationEntities' stock.
