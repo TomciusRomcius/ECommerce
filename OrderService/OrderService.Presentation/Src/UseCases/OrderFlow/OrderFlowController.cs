@@ -8,16 +8,16 @@ using OrderService.Domain.Entities;
 using OrderService.Payment;
 using OrderService.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.UseCases.OrderFlow;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderController : ControllerBase
+public class OrderFlowController : ControllerBase
 {
     private readonly IOrderFlowService _orderFlowService;
     private readonly IOrderService _orderService;
 
-    public OrderController(IOrderFlowService orderFlowService, IOrderService orderService)
+    public OrderFlowController(IOrderFlowService orderFlowService, IOrderService orderService)
     {
         _orderFlowService = orderFlowService;
         _orderService = orderService;
@@ -31,9 +31,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("session")]
-    public async Task<IActionResult> CreateOrderPaymentSession(
-        [FromQuery(Name = "testcharge")] bool testCharge
-    )
+    public async Task<IActionResult> CreateOrderPaymentSession()
     {
         string? userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         string? userJwt = await HttpContext.GetTokenAsync("access_token");

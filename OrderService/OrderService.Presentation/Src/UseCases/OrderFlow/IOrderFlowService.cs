@@ -1,7 +1,7 @@
 using OrderService.Payment;
 using OrderService.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.UseCases.OrderFlow;
 
 public interface IOrderFlowService
 {

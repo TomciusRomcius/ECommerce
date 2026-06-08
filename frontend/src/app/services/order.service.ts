@@ -9,6 +9,6 @@ export class OrderService {
   private readonly http = inject(HttpClient);
 
   createPaymentSession(): Observable<PaymentSessionModel> {
-    return this.http.post<PaymentSessionModel>(`${environment.backendApi}/Order/session`, {});
+    return this.http.post<PaymentSessionModel>(`${environment.backendApi}/orderflow/session`, {});
   }
 }

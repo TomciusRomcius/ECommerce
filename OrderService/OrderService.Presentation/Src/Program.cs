@@ -4,6 +4,7 @@ using ECommerceBackend.Utils.Database;
 using OrderService.Application.Persistence;
 using OrderService.Payment;
 using OrderService.Presentation.Order;
+using OrderService.Presentation.UseCases.OrderFlow;
 using OrderService.Utils;
 
 var builder = WebApplication.CreateBuilder(args);

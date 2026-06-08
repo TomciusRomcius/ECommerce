@@ -13,8 +13,7 @@ public class OrderPaymentSessionService(HttpClient httpClient, IOptions<Microser
         string? authorizationHeader,
         CancellationToken cancellationToken = default)
     {
-        var query = new QueryString().Add("testcharge", testCharge ? "true" : "false");
-        string url = $"{hosts.Value.OrderServiceUrl}/Order/session{query}";
+        string url = $"{hosts.Value.OrderServiceUrl}/orderflow/session";
 
         using var request = new HttpRequestMessage(HttpMethod.Post, url);
 

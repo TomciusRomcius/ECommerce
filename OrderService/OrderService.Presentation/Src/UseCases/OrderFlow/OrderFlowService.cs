@@ -1,9 +1,10 @@
 using OrderService.Application.Persistence;
 using OrderService.Domain.Entities;
 using OrderService.Payment;
+using OrderService.Presentation.Order;
 using OrderService.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.UseCases.OrderFlow;
 
 public class OrderFlowService : IOrderFlowService
 {
