@@ -1,13 +1,19 @@
 using ProductService.Application;
+using ProductService.Application.Mapping;
 using ProductService.Application.Persistence;
 using ProductService.Application.Services;
 using ECommerceBackend.Utils.Auth;
 using ECommerceBackend.Utils.Database;
+using ProductService.Presentation.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(
+    _ => { },
+    typeof(ApplicationMappingProfile),
+    typeof(PresentationMappingProfile));
 
 builder.Services.AddOptions<PostgresConfiguration>()
     .Bind(builder.Configuration.GetSection("Database"))

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using AutoMapper;
 using ECommerceBackend.Utils.Microservices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,7 +9,8 @@ namespace ProductService.Application.Services;
 public class StoreDetailsService(
     HttpClient httpClient,
     IOptions<MicroserviceHosts> hosts,
-    ILogger<StoreDetailsService> logger) : IStoreDetailsService
+    ILogger<StoreDetailsService> logger,
+    IMapper mapper) : IStoreDetailsService
 {
     public async Task<IReadOnlyDictionary<int, ProductStoreDetails>> GetStoreDetailsByProductIdsAsync(
         IEnumerable<int> productIds,
@@ -36,29 +38,6 @@ public class StoreDetailsService(
             .GroupBy(location => location.ProductId)
             .ToDictionary(
                 group => group.Key,
-                group =>
-                {
-                    StoreServiceProductStoreLocationDto location = group.First();
-                    return new ProductStoreDetails
-                    {
-                        StoreLocationId = location.StoreLocationId,
-                        Stock = location.Stock,
-                        DisplayName = location.DisplayName,
-                        Address = location.Address,
-                    };
-                });
-    }
-
-    private sealed class StoreServiceProductStoreLocationDto
-    {
-        public int ProductId { get; set; }
-
-        public int StoreLocationId { get; set; }
-
-        public int Stock { get; set; }
-
-        public string DisplayName { get; set; } = string.Empty;
-
-        public string Address { get; set; } = string.Empty;
+                group => mapper.Map<ProductStoreDetails>(group.First()));
     }
 }

@@ -1,3 +1,4 @@
+using AutoMapper;
 using ECommerceBackend.Utils.Jwt;
 using ECommerceBackend.Utils.Pagination;
 using MediatR;
@@ -8,6 +9,7 @@ using ProductService.Application.UseCases.Product.Queries;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Utils;
 using ProductService.Presentation.Controllers.Product.Dtos;
+using ProductService.Presentation.Mapping;
 using ProductService.Presentation.Utils;
 
 namespace ProductService.Presentation.Controllers.Product;
@@ -17,10 +19,12 @@ namespace ProductService.Presentation.Controllers.Product;
 public class ProductController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public ProductController(IMediator mediator)
+    public ProductController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     /// <param name="pageNumber">Page number for pagination</param>
@@ -30,14 +34,7 @@ public class ProductController : ControllerBase
     {
         Page<ProductEntity> page = await _mediator.Send(new GetProductsQuery(searchText, pageNumber, pageSize), cancellationToken);
 
-        Page<ProductDto> response = new()
-        {
-            Data = ProductResponseMapper.ToDtoList(page.Data),
-            TotalCount = page.TotalCount,
-            PageSize = page.PageSize,
-            HasNextPage = page.HasNextPage,
-            HasPrevPage = page.HasPrevPage,
-        };
+        Page<ProductDto> response = _mapper.MapPage<ProductEntity, ProductDto>(page);
 
         return Ok(response);
     }
@@ -56,22 +53,15 @@ public class ProductController : ControllerBase
         }
 
         List<ProductEntity> products = result.GetValue();
-        return Ok(ProductResponseMapper.ToDtoList(products));
+        return Ok(_mapper.Map<List<ProductDto>>(products));
     }
 
     [Authorize(Roles = RoleTypes.Admin)]
     [HttpPost]
     public async Task<IActionResult> CreateProducts([FromBody] RequestCreateProductDto createProductDto)
     {
-        var result = await _mediator.Send(new CreateProductCommand(
-            createProductDto.Name,
-            createProductDto.Description,
-            createProductDto.Price,
-            createProductDto.ManufacturerId,
-            createProductDto.CategoryId,
-            createProductDto.ImageKeys,
-            createProductDto.ImageCount
-        ));
+        CreateProductCommand command = _mapper.Map<CreateProductCommand>(createProductDto);
+        var result = await _mediator.Send(command);
 
         if (result.Errors.Any())
         {
