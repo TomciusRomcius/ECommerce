@@ -35,6 +35,7 @@ services:
       MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
       MicroserviceNetworkConfig__ProductServiceUrl: ${MicroserviceNetworkConfig__ProductServiceUrl}
       MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
+      MicroserviceNetworkConfig__StoreServiceUrl: ${MicroserviceNetworkConfig__StoreServiceUrl}
       Kafka__Servers: kafka:9092
     volumes:
       - ./OrderService.Presentation/Src:/app/OrderService.Presentation/Src

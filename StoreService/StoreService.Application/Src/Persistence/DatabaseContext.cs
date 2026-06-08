@@ -34,9 +34,18 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<ProductStoreLocationEntity>()
             .HasKey(psl => new { psl.StoreLocationId, psl.ProductId });
 
+        modelBuilder.Entity<ReservedProductEntity>()
+            .HasKey(rp => new { rp.OrderId, rp.StoreLocationId, rp.ProductId });
+
+        modelBuilder.Entity<ReservedProductEntity>()
+            .HasOne(rp => rp.StoreLocation)
+            .WithOne()
+            .HasForeignKey<ReservedProductEntity>(rp => rp.StoreLocationId);
+
         base.OnModelCreating(modelBuilder);
     }
 
     public DbSet<StoreLocationEntity> StoreLocations { get; set; }
     public DbSet<ProductStoreLocationEntity> ProductStoreLocations { get; set; }
+    public DbSet<ReservedProductEntity> ReservedProducts { get; set; }
 }

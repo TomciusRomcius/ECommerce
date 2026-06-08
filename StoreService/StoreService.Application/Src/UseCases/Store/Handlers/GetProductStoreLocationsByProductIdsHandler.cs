@@ -31,6 +31,18 @@ public class GetProductStoreLocationsByProductIdsHandler
             return [];
         }
 
+        var reservedCounts = _context.ProductStoreLocations
+            .AsNoTracking()
+            .Where(psl => request.ProductIds.Contains(psl.ProductId))
+            .Select(psl => new
+            {
+                psl.StoreLocationId,
+                psl.ProductId,
+                Reserved = _context.ReservedProducts
+                    .Where(rp => rp.StoreLocationId == psl.StoreLocationId && rp.ProductId == psl.ProductId)
+                    .Sum(rp => (int?)rp.Stock) ?? 0,
+            });
+
         List<ProductStoreLocationDetails> result = await _context.ProductStoreLocations
             .AsNoTracking()
             .Where(psl => request.ProductIds.Contains(psl.ProductId))
@@ -38,13 +50,18 @@ public class GetProductStoreLocationsByProductIdsHandler
                 _context.StoreLocations.AsNoTracking(),
                 psl => psl.StoreLocationId,
                 store => store.StoreLocationId,
-                (psl, store) => new ProductStoreLocationDetails
+                (psl, store) => new { psl, store })
+            .Join(
+                reservedCounts,
+                row => new { row.psl.StoreLocationId, row.psl.ProductId },
+                reserved => new { reserved.StoreLocationId, reserved.ProductId },
+                (row, reserved) => new ProductStoreLocationDetails
                 {
-                    ProductId = psl.ProductId,
-                    StoreLocationId = psl.StoreLocationId,
-                    Stock = psl.Stock,
-                    DisplayName = store.DisplayName,
-                    Address = store.Address,
+                    ProductId = row.psl.ProductId,
+                    StoreLocationId = row.psl.StoreLocationId,
+                    Stock = Math.Max(0, row.psl.Stock - reserved.Reserved),
+                    DisplayName = row.store.DisplayName,
+                    Address = row.store.Address,
                 })
             .ToListAsync(cancellationToken);
 

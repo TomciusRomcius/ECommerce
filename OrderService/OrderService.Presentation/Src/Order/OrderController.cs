@@ -29,7 +29,7 @@ public class OrderController : ControllerBase
         // Fetch session id from db
         return Ok();
     }
-    
+
     [HttpPost("session")]
     public async Task<IActionResult> CreateOrderPaymentSession(
         [FromQuery(Name = "testcharge")] bool testCharge
@@ -41,7 +41,6 @@ public class OrderController : ControllerBase
             return Forbid();
         if (userId is null) return new UnauthorizedObjectResult("You must be logged in to add items to cart!");
 
-        // TODO: result pattern
         Result<PaymentSessionModel> result = await _orderFlowService.CreateOrderPaymentSession(new Guid(userId), PaymentProvider.STRIPE);
         if (result.Errors.Any())
         {

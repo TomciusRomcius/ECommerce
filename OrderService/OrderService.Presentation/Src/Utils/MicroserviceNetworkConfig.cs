@@ -10,5 +10,7 @@ namespace OrderService.Utils
         public required string ProductServiceUrl { get; set; }
         [Required]
         public required string UserServiceUrl { get; set; }
+        [Required]
+        public required string StoreServiceUrl { get; set; }
     }
 }
