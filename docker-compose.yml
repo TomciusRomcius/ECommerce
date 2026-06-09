@@ -6,6 +6,7 @@ include:
   - ./StoreService/docker-compose.yml
   - ./UserService/docker-compose.yml
   - ./OrderService/docker-compose.yml
+  - ./ApiWorker/docker-compose.yml
   - ./docker-compose-debug-tools.yml
 
 services:

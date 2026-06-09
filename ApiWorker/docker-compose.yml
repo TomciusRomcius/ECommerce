@@ -1,0 +1,83 @@
+services:
+  api-worker:
+    build:
+      dockerfile: Dockerfile
+      target: build
+    command:
+      [
+        "dotnet",
+        "watch",
+        "--project",
+        "ApiWorker.csproj",
+      ]
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Trace
+      Logging__LogLevel__Microsoft: Warning
+      Logging__LogLevel__Microsoft.Hosting.Lifetime: Information
+      Database__Host: api-worker-postgres
+      Database__Database: ${Database__Database}
+      Database__Username: ${Database__Username}
+      Database__Password: ${Database__Password}
+      Kafka__Servers: ${Kafka__Servers}
+      MicroserviceNetworkConfig__ProductServiceUrl: ${MicroserviceNetworkConfig__ProductServiceUrl}
+      MicroserviceNetworkConfig__StoreServiceUrl: ${MicroserviceNetworkConfig__StoreServiceUrl}
+      MicroserviceNetworkConfig__OrderServiceUrl: ${MicroserviceNetworkConfig__OrderServiceUrl}
+      MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
+      MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
+    env_file:
+      - .env
+    depends_on:
+      api-worker-postgres-migrate:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_started
+    volumes:
+      - ./Persistence:/app/Persistence
+      - ./Services:/app/Services
+      - ./Worker.cs:/app/Worker.cs
+      - ./Program.cs:/app/Program.cs
+      - ./Properties:/app/Properties
+
+  api-worker-postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${Database__Username}
+      POSTGRES_PASSWORD: ${Database__Password}
+      POSTGRES_DB: ${Database__Database}
+    env_file:
+      - .env
+
+  api-worker-postgres-migrate:
+    build:
+      dockerfile: Dockerfile
+      target: build
+    command:
+      [
+        "dotnet",
+        "ef",
+        "database",
+        "update",
+        "--project",
+        "ApiWorker.csproj",
+        "--",
+        "--host=${Database__Host}",
+        "--database=${Database__Database}",
+        "--username=${Database__Username}",
+        "--password=${Database__Password}",
+      ]
+    restart: on-failure
+    environment:
+      Database__Host: api-worker-postgres
+      Database__Database: ${Database__Database}
+      Database__Username: ${Database__Username}
+      Database__Password: ${Database__Password}
+    env_file:
+      - .env
+    volumes:
+      - ./Persistence:/app/Persistence
+      - ./Services:/app/Services
+      - ./Worker.cs:/app/Worker.cs
+      - ./Program.cs:/app/Program.cs
+      - ./Properties:/app/Properties

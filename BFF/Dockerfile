@@ -18,7 +18,7 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 
 COPY ["BFF.csproj", "BFF.csproj"]
 
-RUN dotnet restore
+RUN dotnet restore --no-cache
 COPY . .
 RUN dotnet build -c $BUILD_CONFIGURATION
 

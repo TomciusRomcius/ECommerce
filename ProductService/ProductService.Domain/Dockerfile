@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProductService/ProductService.Domain/ProductService.Domain.csproj", "ProductService/ProductService.Domain/"]
-RUN dotnet restore "ProductService/ProductService.Domain/ProductService.Domain.csproj"
+RUN dotnet restore "ProductService/ProductService.Domain/ProductService.Domain.csproj" --no-cache
 COPY . .
 WORKDIR "/src/ProductService/ProductService.Domain"
 RUN dotnet build "./ProductService.Domain.csproj" -c $BUILD_CONFIGURATION -o /app/build

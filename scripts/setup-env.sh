@@ -108,6 +108,15 @@ echo "Kafka__Servers=kafka" >> ../OrderService/.env
 addJwtEnvs "OrderService"
 addMicroserviceUrls "OrderService"
 
+# Api worker
+echo "Database__Host=api-worker-postgres" > ../ApiWorker/.env
+echo "Database__Port=5432" >> ../ApiWorker/.env
+echo "Database__Database=read_db" >> ../ApiWorker/.env
+echo "Database__Username=postgres" >> ../ApiWorker/.env
+echo "Database__Password=postgres" >> ../ApiWorker/.env
+echo "Kafka__Servers=kafka:9092" >> ../ApiWorker/.env
+addMicroserviceUrls "ApiWorker"
+
 # Frontend (written to .env but the service reads from system environment variables)
 
 read -p "Enter Stripe publishable API key(or leave empty): " stripePubKey

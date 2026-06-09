@@ -8,8 +8,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.8" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
         <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.2" />
+        <PackageReference Include="Tomas.ECommerceBackend.Utils" Version="1.0.8" />
         <PackageReference Include="Tomas.EventSystemHelper.Kafka" Version="1.0.2" />
     </ItemGroup>
 </Project>

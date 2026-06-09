@@ -15,3 +15,10 @@ kafka-topics.sh \
     --replication-factor 1 \
     --create > /dev/null 2>&1 || true
 
+kafka-topics.sh \
+    --bootstrap-server kafka:9092 \
+    --topic product-added-to-store \
+    --partitions 6 \
+    --replication-factor 1 \
+    --create > /dev/null 2>&1 || true
+
