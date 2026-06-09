@@ -28,6 +28,9 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpClient();
+builder.Services.AddAutoMapper(
+    _ => { },
+    typeof(StoreProductsMappingProfile));
 builder.Services.AddOptions<KeycloakAuthOptions>()
     .Bind(builder.Configuration.GetSection(KeycloakAuthOptions.SectionName))
     .ValidateDataAnnotations()

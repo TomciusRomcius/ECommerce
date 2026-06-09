@@ -1,5 +1,4 @@
-using System.Text.Json;
-using BFF.Configuration;
+using AutoMapper;
 using BFF.ReadDb;
 using BFF.ReadDb.Entities;
 using BFF.Utils;
@@ -14,11 +13,10 @@ public class StoreProductsService(
     IHttpClientFactory httpClientFactory,
     ReadDbContext readDbContext,
     IOptions<MicroserviceHosts> hosts,
-    IOptions<S3Configuration> s3Configuration,
+    IMapper mapper,
     ILogger<StoreProductsService> logger) : IStoreProductsService
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
-    private readonly S3Configuration _s3Configuration = s3Configuration.Value;
 
     public async Task<Page<StoreProductDto>> GetProductsAsync(
         int? storeLocationId,
@@ -45,7 +43,7 @@ public class StoreProductsService(
             .Select(g => g.First())
             .ToListAsync(cancellationToken);
 
-        List<StoreProductDto> data = rows.Select(MapToDto).ToList();
+        List<StoreProductDto> data = mapper.Map<List<StoreProductDto>>(rows);
 
         int fetchedCount = (pageNumber * pageSize) + data.Count;
         return new Page<StoreProductDto>
@@ -69,7 +67,7 @@ public class StoreProductsService(
             .OrderBy(storeProduct => storeProduct.StoreLocationId)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return product is null ? null : MapToDto(product);
+        return product is null ? null : mapper.Map<StoreProductDto>(product);
     }
 
     public async Task<HttpResponseMessage> UpdateProductStockAsync(
@@ -116,37 +114,4 @@ public class StoreProductsService(
         return await _httpClient.SendAsync(request, cancellationToken);
     }
 
-    private StoreProductDto MapToDto(StoreProductReadEntity product) => new()
-    {
-        ProductId = product.ProductId,
-        Name = product.Name,
-        Description = product.Description,
-        Price = product.Price,
-        ManufacturerId = product.ManufacturerId,
-        ManufacturerName = product.ManufacturerName,
-        CategoryId = product.CategoryId,
-        CategoryName = product.CategoryName,
-        ImageUrls = BuildImageUrls(product.ProductImages.Select(image => image.S3Key)),
-        Store = new StoreProductStoreDto
-        {
-            StoreLocationId = product.StoreLocationId,
-            Stock = product.Stock,
-            DisplayName = product.StoreDisplayName,
-            Address = product.StoreAddress,
-        },
-    };
-
-    private List<string> BuildImageUrls(IEnumerable<string> s3Keys)
-    {
-        string baseUrl = _s3Configuration.ServiceUrl.TrimEnd('/');
-        if (baseUrl.Contains("localstack", StringComparison.OrdinalIgnoreCase))
-        {
-            baseUrl = baseUrl.Replace("localstack", "localhost", StringComparison.OrdinalIgnoreCase);
-        }
-
-        return s3Keys
-            .Where(key => !string.IsNullOrWhiteSpace(key))
-            .Select(key => $"{baseUrl}/{_s3Configuration.BucketName}/{key.Trim()}")
-            .ToList();
-    }
 }
