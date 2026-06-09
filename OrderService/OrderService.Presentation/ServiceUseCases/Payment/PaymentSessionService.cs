@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.Utils;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace OrderService.Payment
+namespace OrderService.Presentation.ServiceUseCases.Payment
 {
     public class PaymentSessionService : IPaymentSessionService
     {

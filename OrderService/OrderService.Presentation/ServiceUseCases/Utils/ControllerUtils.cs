@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace OrderService.Utils
+namespace OrderService.Presentation.ServiceUseCases.Utils
 {
     public static class ControllerUtils
     {

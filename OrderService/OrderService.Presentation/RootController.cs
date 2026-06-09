@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace OrderService;
+namespace OrderService.Presentation;
 
 [ApiController]
 [Route("/")]

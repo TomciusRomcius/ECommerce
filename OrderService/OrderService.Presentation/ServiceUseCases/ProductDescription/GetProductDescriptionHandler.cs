@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.Extensions.Options;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.ServiceUseCases.ProductDescription;
 
 public class GetProductDescriptionHandler : IRequestHandler<GetProductDescriptionQuery, Result<List<ProductPriceModel>>>
 {

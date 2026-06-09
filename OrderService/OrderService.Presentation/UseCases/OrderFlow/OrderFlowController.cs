@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Application.Services;
 using OrderService.Domain.Entities;
-using OrderService.Payment;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.Payment;
+using OrderService.Presentation.ServiceUseCases.Utils;
 
 namespace OrderService.Presentation.UseCases.OrderFlow;
 

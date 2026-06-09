@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace OrderService.Utils;
+namespace OrderService.Presentation.ServiceUseCases.Utils;
 
 public class Result<T>
 {

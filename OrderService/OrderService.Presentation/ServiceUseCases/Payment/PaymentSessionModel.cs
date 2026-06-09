@@ -1,4 +1,4 @@
-namespace OrderService.Payment
+namespace OrderService.Presentation.ServiceUseCases.Payment
 {
     public class PaymentSessionModel
     {

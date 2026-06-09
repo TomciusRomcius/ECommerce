@@ -1,5 +1,5 @@
-using OrderService.Payment;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.Payment;
+using OrderService.Presentation.ServiceUseCases.Utils;
 
 namespace OrderService.Presentation.UseCases.OrderFlow;
 

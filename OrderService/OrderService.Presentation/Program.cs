@@ -2,10 +2,10 @@ using System.Reflection;
 using ECommerceBackend.Utils.Auth;
 using ECommerceBackend.Utils.Database;
 using OrderService.Application.Persistence;
-using OrderService.Payment;
-using OrderService.Presentation.Order;
+using OrderService.Presentation.ServiceUseCases.Payment;
+using OrderService.Presentation.ServiceUseCases.UserCart;
+using OrderService.Presentation.ServiceUseCases.Utils;
 using OrderService.Presentation.UseCases.OrderFlow;
-using OrderService.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 

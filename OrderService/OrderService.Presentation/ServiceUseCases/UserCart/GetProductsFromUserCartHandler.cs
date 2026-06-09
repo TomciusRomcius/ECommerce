@@ -2,9 +2,9 @@ using System.Net.Http.Headers;
 using ECommerceBackend.Utils.Jwt;
 using MediatR;
 using Microsoft.Extensions.Options;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.ServiceUseCases.UserCart;
 
 public class GetProductsFromUserCartHandler : IRequestHandler<GetProductsFromUserCartQuery, Result<List<CartProductMinimalModel>>>
 {

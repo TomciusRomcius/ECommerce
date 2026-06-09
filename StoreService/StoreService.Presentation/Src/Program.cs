@@ -38,8 +38,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(
-    typeof(ApplicationMappingProfile).Assembly,
-    typeof(PresentationMappingProfile).Assembly);
+    _ => { },
+    typeof(ApplicationMappingProfile),
+    typeof(PresentationMappingProfile));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MediatREntryPoint).Assembly));
 builder.Services.AddApplicationAuth(builder);
 builder.Services.AddScoped<IOrderDetailsService, OrderDetailsService>();

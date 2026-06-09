@@ -1,7 +1,8 @@
 using MediatR;
-using OrderService.Utils;
+using OrderService.Presentation.ServiceUseCases.ProductDescription;
+using OrderService.Presentation.ServiceUseCases.Utils;
 
-namespace OrderService.Presentation.Order;
+namespace OrderService.Presentation.ServiceUseCases.UserCart;
 
 public class UserCartService : IUserCartService
 {

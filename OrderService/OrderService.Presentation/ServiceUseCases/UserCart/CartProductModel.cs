@@ -1,4 +1,4 @@
-namespace OrderService.Utils;
+namespace OrderService.Presentation.ServiceUseCases.UserCart;
 
 public class CartProductModel : CartProductMinimalModel
 {
