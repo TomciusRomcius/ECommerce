@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.1" />
+    <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.2" />
     <PackageReference Include="Tomas.ECommerceBackend.Utils" Version="1.0.5" />
     <PackageReference Include="Tomas.EventSystemHelper" Version="1.0.2" />
     <PackageReference Include="Tomas.EventSystemHelper.Kafka" Version="1.0.2" />

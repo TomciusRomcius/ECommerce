@@ -37,7 +37,7 @@ public class StoreProductsService(
         }
 
         IReadOnlyDictionary<int, ProductStoreLocationDto> storeDetailsByProductId =
-            await FetchStoreDetailsByProductIdsAsync(
+            await FetchProductStoreDetailsByProductIdsAsync(
                 productPage.Data.Select(product => product.ProductId),
                 storeLocationId,
                 cancellationToken);
@@ -69,7 +69,7 @@ public class StoreProductsService(
         }
 
         IReadOnlyDictionary<int, ProductStoreLocationDto> storeDetailsByProductId =
-            await FetchStoreDetailsByProductIdsAsync([productId], storeLocationId: null, cancellationToken);
+            await FetchProductStoreDetailsByProductIdsAsync([productId], storeLocationId: null, cancellationToken);
 
         storeDetailsByProductId.TryGetValue(productId, out ProductStoreLocationDto? storeDetails);
         IReadOnlyList<string> imageUrls = s3ImageUrlBuilder.BuildUrls(product.ImageKeys);
@@ -129,7 +129,7 @@ public class StoreProductsService(
             ?? [];
     }
 
-    private async Task<IReadOnlyDictionary<int, ProductStoreLocationDto>> FetchStoreDetailsByProductIdsAsync(
+    private async Task<IReadOnlyDictionary<int, ProductStoreLocationDto>> FetchProductStoreDetailsByProductIdsAsync(
         IEnumerable<int> productIds,
         int? storeLocationId,
         CancellationToken cancellationToken)
