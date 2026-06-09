@@ -1,20 +1,24 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using BFF.Configuration;
+using BFF.ReadDb;
+using BFF.ReadDb.Entities;
 using BFF.Utils;
 using ECommerceBackend.Utils.Microservices;
 using ECommerceBackend.Utils.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace BFF.StoreProducts;
 
 public class StoreProductsService(
-    HttpClient httpClient,
+    IHttpClientFactory httpClientFactory,
+    ReadDbContext readDbContext,
     IOptions<MicroserviceHosts> hosts,
-    IS3ImageUrlBuilder s3ImageUrlBuilder,
+    IOptions<S3Configuration> s3Configuration,
     ILogger<StoreProductsService> logger) : IStoreProductsService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private readonly S3Configuration _s3Configuration = s3Configuration.Value;
 
     public async Task<Page<StoreProductDto>> GetProductsAsync(
         int? storeLocationId,
@@ -22,140 +26,50 @@ public class StoreProductsService(
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        Page<ProductFromServiceDto> productPage = await FetchProductPageAsync(pageNumber, pageSize, cancellationToken);
+        IQueryable<StoreProductReadEntity> storeProductsQuery = readDbContext.StoreProducts.AsNoTracking();
 
-        if (productPage.Data.Count == 0)
+        if (storeLocationId is not null)
         {
-            return new Page<StoreProductDto>
-            {
-                Data = [],
-                TotalCount = productPage.TotalCount,
-                HasNextPage = productPage.HasNextPage,
-                HasPrevPage = productPage.HasPrevPage,
-                PageSize = pageSize
-            };
+            storeProductsQuery = storeProductsQuery.Where(product => product.StoreLocationId == storeLocationId.Value);
         }
 
-        IReadOnlyDictionary<int, ProductStoreLocationDto> storeDetailsByProductId =
-            await FetchProductStoreDetailsByProductIdsAsync(
-                productPage.Data.Select(product => product.ProductId),
-                storeLocationId,
-                cancellationToken);
+        int totalCount = await storeProductsQuery.CountAsync(cancellationToken);
 
-        List<StoreProductDto> merged = StoreProductMerger.Merge(
-            productPage.Data,
-            storeDetailsByProductId,
-            product => s3ImageUrlBuilder.BuildUrls(product.ImageKeys),
-            storeLocationId);
+        List<StoreProductReadEntity> rows = await storeProductsQuery
+            .Include(p => p.ProductImages)
+            .OrderBy(p => p.ProductId)
+            .ThenBy(p => p.StoreLocationId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .GroupBy(p => p.ProductId)
+            .Select(g => g.First())
+            .ToListAsync(cancellationToken);
 
+        List<StoreProductDto> data = rows.Select(MapToDto).ToList();
+
+        int fetchedCount = (pageNumber * pageSize) + data.Count;
         return new Page<StoreProductDto>
         {
-            Data = merged,
-            TotalCount = productPage.TotalCount,
-            HasNextPage = productPage.HasNextPage,
-            HasPrevPage = productPage.HasPrevPage,
+            Data = data,
+            TotalCount = totalCount,
+            HasNextPage = fetchedCount < totalCount,
+            HasPrevPage = pageNumber > 0,
             PageSize = pageSize,
         };
     }
 
-    public async Task<StoreProductDto?> GetProductByIdAsync(int productId, CancellationToken cancellationToken = default)
+    public async Task<StoreProductDto?> GetProductByIdAsync(
+        int productId,
+        CancellationToken cancellationToken = default)
     {
-        List<ProductFromServiceDto> products = await FetchProductsByIdsAsync([productId], cancellationToken);
-        ProductFromServiceDto? product = products.FirstOrDefault();
+        StoreProductReadEntity? product = await readDbContext.StoreProducts
+            .AsNoTracking()
+            .Include(storeProduct => storeProduct.ProductImages)
+            .Where(storeProduct => storeProduct.ProductId == productId)
+            .OrderBy(storeProduct => storeProduct.StoreLocationId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (product is null)
-        {
-            return null;
-        }
-
-        IReadOnlyDictionary<int, ProductStoreLocationDto> storeDetailsByProductId =
-            await FetchProductStoreDetailsByProductIdsAsync([productId], storeLocationId: null, cancellationToken);
-
-        storeDetailsByProductId.TryGetValue(productId, out ProductStoreLocationDto? storeDetails);
-        IReadOnlyList<string> imageUrls = s3ImageUrlBuilder.BuildUrls(product.ImageKeys);
-        return StoreProductMerger.ToStoreProductDto(product, storeDetails, imageUrls);
-    }
-
-    private async Task<Page<ProductFromServiceDto>> FetchProductPageAsync(
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        var query = new QueryString()
-            .Add("pageNumber", pageNumber.ToString())
-            .Add("pageSize", pageSize.ToString());
-
-        string productsUrl = $"{hosts.Value.ProductServiceUrl}/product{query}";
-        logger.LogDebug("Fetching products from {Url}", productsUrl);
-
-        using HttpResponseMessage response = await httpClient.GetAsync(productsUrl, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        Page<ProductFromServiceDto>? page =
-            await response.Content.ReadFromJsonAsync<Page<ProductFromServiceDto>>(JsonOptions, cancellationToken);
-
-        return page ?? new Page<ProductFromServiceDto>
-        {
-            Data = [],
-            TotalCount = 0,
-            HasNextPage = false,
-            HasPrevPage = false,
-        };
-    }
-
-    private async Task<List<ProductFromServiceDto>> FetchProductsByIdsAsync(
-        IEnumerable<int> productIds,
-        CancellationToken cancellationToken)
-    {
-        List<int> ids = productIds.Distinct().ToList();
-        if (ids.Count == 0)
-        {
-            return [];
-        }
-
-        var query = new QueryString();
-        foreach (int id in ids)
-        {
-            query = query.Add("ids", id.ToString());
-        }
-
-        string productsUrl = $"{hosts.Value.ProductServiceUrl}/product/by-ids{query}";
-        logger.LogDebug("Fetching products by ids from {Url}", productsUrl);
-
-        using HttpResponseMessage response = await httpClient.GetAsync(productsUrl, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadFromJsonAsync<List<ProductFromServiceDto>>(JsonOptions, cancellationToken)
-            ?? [];
-    }
-
-    private async Task<IReadOnlyDictionary<int, ProductStoreLocationDto>> FetchProductStoreDetailsByProductIdsAsync(
-        IEnumerable<int> productIds,
-        int? storeLocationId,
-        CancellationToken cancellationToken)
-    {
-        List<int> ids = productIds.Distinct().ToList();
-        if (ids.Count == 0)
-        {
-            return new Dictionary<int, ProductStoreLocationDto>();
-        }
-
-        var query = new QueryString();
-        foreach (int id in ids)
-        {
-            query = query.Add("ids", id.ToString());
-        }
-
-        string storeUrl = $"{hosts.Value.StoreServiceUrl}/availableproducts/by-product-ids{query}";
-        logger.LogDebug("Fetching store details from {Url}", storeUrl);
-
-        using HttpResponseMessage response = await httpClient.GetAsync(storeUrl, cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        List<ProductStoreLocationDto>? storeDetails =
-            await response.Content.ReadFromJsonAsync<List<ProductStoreLocationDto>>(JsonOptions, cancellationToken);
-
-        return StoreProductMerger.IndexStoreDetails(storeDetails ?? [], storeLocationId);
+        return product is null ? null : MapToDto(product);
     }
 
     public async Task<HttpResponseMessage> UpdateProductStockAsync(
@@ -177,7 +91,7 @@ public class StoreProductsService(
             stock,
         });
 
-        return await httpClient.SendAsync(request, cancellationToken);
+        return await _httpClient.SendAsync(request, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> AddProductToStoreAsync(
@@ -199,6 +113,40 @@ public class StoreProductsService(
             stock,
         });
 
-        return await httpClient.SendAsync(request, cancellationToken);
+        return await _httpClient.SendAsync(request, cancellationToken);
+    }
+
+    private StoreProductDto MapToDto(StoreProductReadEntity product) => new()
+    {
+        ProductId = product.ProductId,
+        Name = product.Name,
+        Description = product.Description,
+        Price = product.Price,
+        ManufacturerId = product.ManufacturerId,
+        ManufacturerName = product.ManufacturerName,
+        CategoryId = product.CategoryId,
+        CategoryName = product.CategoryName,
+        ImageUrls = BuildImageUrls(product.ProductImages.Select(image => image.S3Key)),
+        Store = new StoreProductStoreDto
+        {
+            StoreLocationId = product.StoreLocationId,
+            Stock = product.Stock,
+            DisplayName = product.StoreDisplayName,
+            Address = product.StoreAddress,
+        },
+    };
+
+    private List<string> BuildImageUrls(IEnumerable<string> s3Keys)
+    {
+        string baseUrl = _s3Configuration.ServiceUrl.TrimEnd('/');
+        if (baseUrl.Contains("localstack", StringComparison.OrdinalIgnoreCase))
+        {
+            baseUrl = baseUrl.Replace("localstack", "localhost", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return s3Keys
+            .Where(key => !string.IsNullOrWhiteSpace(key))
+            .Select(key => $"{baseUrl}/{_s3Configuration.BucketName}/{key.Trim()}")
+            .ToList();
     }
 }

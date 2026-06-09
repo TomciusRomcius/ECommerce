@@ -4,8 +4,10 @@ using BFF.Cart;
 using BFF.Configuration;
 using BFF.Order;
 using BFF.Products;
+using BFF.ReadDb;
 using BFF.StoreProducts;
 using ECommerceBackend.Utils.Auth;
+using ECommerceBackend.Utils.Database;
 using ECommerceBackend.Utils.Microservices;
 using Microsoft.Extensions.Options;
 
@@ -33,8 +35,13 @@ builder.Services.AddOptions<KeycloakAuthOptions>()
 builder.Services.AddHttpClient<IKeycloakTokenService, KeycloakTokenService>();
 builder.Services.AddHttpClient<ICartService, CartService>();
 builder.Services.AddHttpClient<IOrderPaymentSessionService, OrderPaymentSessionService>();
-builder.Services.AddHttpClient<IStoreProductsService, StoreProductsService>();
+builder.Services.AddScoped<IStoreProductsService, StoreProductsService>();
 builder.Services.AddHttpClient<IProductService, ProductService>();
+builder.Services.AddOptions<PostgresConfiguration>()
+    .Bind(builder.Configuration.GetSection("Database"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddDbContext<ReadDbContext>();
 builder.Services.AddOptions<MicroserviceHosts>()
     .Bind(builder.Configuration.GetSection("MicroserviceNetworkConfig"))
     .ValidateDataAnnotations()

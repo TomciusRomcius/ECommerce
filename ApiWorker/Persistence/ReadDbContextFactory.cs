@@ -19,7 +19,7 @@ public sealed class ReadDbContextFactory : IDesignTimeDbContextFactory<ReadDbCon
         new()
         {
             Host = "localhost",
-            Database = "read_db",
+            Database = "postgres",
             Username = "postgres",
             Password = "postgres",
         };

@@ -7,13 +7,12 @@ namespace BFF.StoreProducts;
 
 [ApiController]
 [Route("[controller]")]
-public class AvailableProductsController(
+public class StoreProductsController(
     IStoreProductsService storeProductsService,
-    ILogger<AvailableProductsController> logger) : ControllerBase
+    ILogger<StoreProductsController> logger) : ControllerBase
 {
     /// <summary>
-    /// Returns products merged with store details from StoreService.
-    /// Fetches the product page from ProductService, then enriches via availableproducts/by-product-ids.
+    /// Returns store products from the ReadDB.
     /// When storeLocationId is set, only products stocked at that store are included.
     /// </summary>
     [HttpGet]
@@ -38,6 +37,11 @@ public class AvailableProductsController(
             logger.LogWarning(ex, "Failed to fetch products (storeLocationId={StoreLocationId}).", storeLocationId);
             return StatusCode(StatusCodes.Status502BadGateway, new { error = "Failed to fetch products." });
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to read products from ReadDB (storeLocationId={StoreLocationId}).", storeLocationId);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Failed to fetch products." });
+        }
     }
 
     [HttpGet("{productId:int}")]
@@ -58,6 +62,11 @@ public class AvailableProductsController(
         {
             logger.LogWarning(ex, "Failed to fetch product {ProductId}.", productId);
             return StatusCode(StatusCodes.Status502BadGateway, new { error = "Failed to fetch product." });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to read product {ProductId} from ReadDB.", productId);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Failed to fetch product." });
         }
     }
 

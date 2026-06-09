@@ -15,12 +15,12 @@ export const storeProductsResolver: ResolveFn<PageModel<ProductModel>> = (
   const storeLocationId = route.paramMap.get('id');
   const pageNumber = route.queryParamMap.get('pageNumber') ?? '1';
   const searchText = route.queryParamMap.get('searchText') ?? '';
-  if (!storeLocationId) 
+  if (!storeLocationId)
     throw new Error("Store location id is not defined!");
   const params: Record<string, string> = { storeLocationId, pageNumber, searchText };
 
   return unwrapApiResponse(
-    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/availableproducts`, {
+    httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
       params,
     }));
 }

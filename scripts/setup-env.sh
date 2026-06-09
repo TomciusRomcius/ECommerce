@@ -33,7 +33,12 @@ jwtAuthority="http://keycloak:8080/realms/ecommerce-api"
 jwtAudience=ecommerce-api
 
 # BFF
-echo "ASPNETCORE_URLS=http://+:8080" >> ../BFF/.env
+echo "ASPNETCORE_URLS=http://+:8080" > ../BFF/.env
+echo "Database__Host=api-worker-postgres" >> ../BFF/.env
+echo "Database__Port=5432" >> ../BFF/.env
+echo "Database__Database=read_db" >> ../BFF/.env
+echo "Database__Username=postgres" >> ../BFF/.env
+echo "Database__Password=postgres" >> ../BFF/.env
 echo "Kafka__Servers=kafka:9092" >> ../BFF/.env
 addJwtEnvs "BFF"
 addMicroserviceUrls "BFF"

@@ -14,6 +14,6 @@ export const productDetailResolver: ResolveFn<ProductModel> = (
   const productId = route.paramMap.get('productId');
 
   return unwrapApiResponse(
-    httpClient.get<ApiResponse<ProductModel>>(`${environment.backendApi}/availableproducts/${productId}`),
+    httpClient.get<ApiResponse<ProductModel>>(`${environment.backendApi}/storeproducts/${productId}`),
   );
 };

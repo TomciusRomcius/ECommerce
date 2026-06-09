@@ -1,9 +1,9 @@
-using ApiWorker.Persistence.Entities;
+using BFF.ReadDb.Entities;
 using ECommerceBackend.Utils.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace ApiWorker.Persistence;
+namespace BFF.ReadDb;
 
 public sealed class ReadDbContext : DbContext
 {
@@ -17,8 +17,6 @@ public sealed class ReadDbContext : DbContext
     public DbSet<StoreProductReadEntity> StoreProducts { get; set; }
 
     public DbSet<ProductImageReadEntity> ProductImages { get; set; }
-
-    public DbSet<ProcessedMessageEntity> ProcessedMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -34,8 +32,15 @@ public sealed class ReadDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<StoreProductReadEntity>()
-            .HasKey(entity => new { entity.StoreLocationId, entity.ProductId });
+        modelBuilder.Entity<StoreProductReadEntity>(entity =>
+        {
+            entity.HasKey(product => new { product.StoreLocationId, product.ProductId });
+
+            entity.HasMany(product => product.ProductImages)
+                .WithOne()
+                .HasForeignKey(image => image.ProductId)
+                .HasPrincipalKey(product => product.ProductId);
+        });
 
         modelBuilder.Entity<ProductImageReadEntity>(entity =>
         {
@@ -49,21 +54,6 @@ public sealed class ReadDbContext : DbContext
                 .IsRequired();
 
             entity.HasIndex(image => image.ProductId);
-        });
-
-        modelBuilder.Entity<ProcessedMessageEntity>(entity =>
-        {
-            entity.HasKey(message => message.Id);
-
-            entity.Property(message => message.Id)
-                .ValueGeneratedOnAdd();
-
-            entity.Property(message => message.MessageId)
-                .HasMaxLength(36)
-                .IsRequired();
-
-            entity.HasIndex(message => message.MessageId)
-                .IsUnique();
         });
 
         base.OnModelCreating(modelBuilder);

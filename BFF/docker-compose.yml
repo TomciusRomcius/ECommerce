@@ -20,6 +20,10 @@ services:
       Jwt__Issuer: ${Jwt__Issuer}
       Jwt__Authority: ${Jwt__Authority}
       Jwt__Audience: ${Jwt__Audience}
+      Database__Host: read-db
+      Database__Database: ${Database__Database}
+      Database__Username: ${Database__Username}
+      Database__Password: ${Database__Password}
       Kafka__Servers: kafka:9092
       MicroserviceNetworkConfig__ProductServiceUrl: ${MicroserviceNetworkConfig__ProductServiceUrl}
       MicroserviceNetworkConfig__StoreServiceUrl: ${MicroserviceNetworkConfig__StoreServiceUrl}
@@ -34,5 +38,7 @@ services:
       S3__Region: ${S3__Region}
       S3__ServiceUrl: ${S3__ServiceUrl}
       S3__BucketName: ecommerce-resources
+    env_file:
+      - .env
     volumes:
       - ./Src:/app/Src

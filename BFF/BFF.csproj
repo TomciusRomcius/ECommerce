@@ -9,6 +9,8 @@
     <ItemGroup>
         <PackageReference Include="AWSSDK.S3" Version="4.0.23.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Tomas.ECommerceBackend.Utils" Version="1.0.8" />
         <PackageReference Include="Tomas.ECommerceBackend.Utils.Auth" Version="1.0.10" />
     </ItemGroup>

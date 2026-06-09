@@ -16,7 +16,7 @@ services:
       Logging__LogLevel__Default: Trace
       Logging__LogLevel__Microsoft: Warning
       Logging__LogLevel__Microsoft.Hosting.Lifetime: Information
-      Database__Host: api-worker-postgres
+      Database__Host: read-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -26,13 +26,6 @@ services:
       MicroserviceNetworkConfig__OrderServiceUrl: ${MicroserviceNetworkConfig__OrderServiceUrl}
       MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
       MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
-    env_file:
-      - .env
-    depends_on:
-      api-worker-postgres-migrate:
-        condition: service_completed_successfully
-      kafka:
-        condition: service_started
     volumes:
       - ./Persistence:/app/Persistence
       - ./Services:/app/Services
@@ -40,7 +33,7 @@ services:
       - ./Program.cs:/app/Program.cs
       - ./Properties:/app/Properties
 
-  api-worker-postgres:
+  read-db:
     image: postgres:17
     environment:
       POSTGRES_USER: ${Database__Username}
@@ -49,7 +42,7 @@ services:
     env_file:
       - .env
 
-  api-worker-postgres-migrate:
+  read-db-postgres-migrate:
     build:
       dockerfile: Dockerfile
       target: build
@@ -69,7 +62,7 @@ services:
       ]
     restart: on-failure
     environment:
-      Database__Host: api-worker-postgres
+      Database__Host: read-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}

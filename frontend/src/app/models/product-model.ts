@@ -1,5 +1,3 @@
-import CategoryModel from './category-model';
-import ManufacturerModel from './manufacturer-model';
 import StoreModel from './store-model';
 
 export default interface ProductModel {
@@ -8,9 +6,9 @@ export default interface ProductModel {
   description: string;
   price: number;
   manufacturerId: number;
+  manufacturerName: string;
   categoryId: number;
-  manufacturer: ManufacturerModel;
-  category: CategoryModel;
+  categoryName: string;
   store: StoreModel | null;
   imageUrls: string[];
 }

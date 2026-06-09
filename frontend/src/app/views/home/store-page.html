@@ -31,11 +31,11 @@
         </div>
         <mat-card-header>
           <mat-card-title>{{ product.name }}</mat-card-title>
-          <mat-card-subtitle>{{ product.manufacturer.name }}</mat-card-subtitle>
+          <mat-card-subtitle>{{ product.manufacturerName }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content class="flex flex-1 flex-col gap-2">
           <p class="text-sm text-gray-600 line-clamp-2">{{ product.description }}</p>
-          <p class="text-xs text-gray-500">{{ product.category.name }}</p>
+          <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
           @if (!isStoreFiltered() && product.store) {
             <p class="text-xs text-gray-500">
               {{ product.store.displayName }} · {{ product.store.stock }} in stock
@@ -61,7 +61,7 @@
   @if (products().data.length > 0) {
     <app-paginator class="mt-8" [data]="products()"></app-paginator>
   }
-  
+
   @else {
     <p class="col-span-3 text-sm text-gray-500">No products found.</p>
   }
