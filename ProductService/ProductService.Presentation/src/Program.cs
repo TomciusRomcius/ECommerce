@@ -4,6 +4,8 @@ using ProductService.Application.Persistence;
 using ProductService.Application.Services;
 using ECommerceBackend.Utils.Auth;
 using ECommerceBackend.Utils.Database;
+using EventSystemHelper.Kafka.Utils;
+using Microsoft.Extensions.Options;
 using ProductService.Presentation.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,11 @@ builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MediatREntryPoint).Assembly));
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddApplicationAuth(builder);
+
+string? kafkaServers = builder.Configuration.GetSection("Kafka")["Servers"];
+ArgumentException.ThrowIfNullOrWhiteSpace(kafkaServers);
+builder.Services.AddSingleton<IOptions<KafkaConfiguration>>(
+    Options.Create(new KafkaConfiguration(kafkaServers)));
 
 var app = builder.Build();
 

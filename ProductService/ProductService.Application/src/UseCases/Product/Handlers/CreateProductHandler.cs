@@ -1,5 +1,10 @@
+using ECommerceBackend.EventTypes;
+using ECommerceBackend.Utils;
+using EventSystemHelper.Kafka.Services;
+using EventSystemHelper.Kafka.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ProductService.Application.Persistence;
 using ProductService.Application.UseCases.Product.Commands;
 using ProductService.Domain.Entities;
@@ -11,11 +16,16 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
 {
     private readonly DatabaseContext _context;
     private readonly ILogger<CreateProductHandler> _logger;
+    private readonly KafkaConfiguration _kafkaConfiguration;
 
-    public CreateProductHandler(ILogger<CreateProductHandler> logger, DatabaseContext context)
+    public CreateProductHandler(
+        ILogger<CreateProductHandler> logger,
+        DatabaseContext context,
+        IOptions<KafkaConfiguration> kafkaConfiguration)
     {
         _context = context;
         _logger = logger;
+        _kafkaConfiguration = kafkaConfiguration.Value;
     }
 
     public async Task<Result<ProductEntity>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -55,6 +65,17 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
             {
                 await _context.SaveChangesAsync(cancellationToken);
             }
+
+            var ev = new ProductCreatedEvent
+            {
+                ProductId = productEntity.ProductId,
+                Name = productEntity.Name,
+                Price = productEntity.Price,
+            };
+
+            string sEvent = JsonUtils.Serialize(ev);
+            await new KafkaEventProducer(_kafkaConfiguration)
+                .ProduceEventAsync("product-created", sEvent, cancellationToken);
         }
         catch (Exception ex)
         {
