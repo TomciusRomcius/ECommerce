@@ -34,7 +34,12 @@ public class StoreProductsService(
         int totalCount = await storeProductsQuery.CountAsync(cancellationToken);
 
         List<StoreProductReadEntity> rows = await storeProductsQuery
-            .Include(p => p.ProductImages)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(product => product.Manufacturer)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(product => product.Category)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(product => product.Images)
             .OrderBy(p => p.ProductId)
             .ThenBy(p => p.StoreLocationId)
             .Skip((pageNumber - 1) * pageSize)
@@ -62,7 +67,12 @@ public class StoreProductsService(
     {
         StoreProductReadEntity? product = await readDbContext.StoreProducts
             .AsNoTracking()
-            .Include(storeProduct => storeProduct.ProductImages)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(productEntity => productEntity.Manufacturer)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(productEntity => productEntity.Category)
+            .Include(storeProduct => storeProduct.Product)
+                .ThenInclude(productEntity => productEntity.Images)
             .Where(storeProduct => storeProduct.ProductId == productId)
             .OrderBy(storeProduct => storeProduct.StoreLocationId)
             .FirstOrDefaultAsync(cancellationToken);

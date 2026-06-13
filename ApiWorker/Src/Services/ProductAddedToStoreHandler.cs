@@ -31,18 +31,13 @@ public sealed class ProductAddedToStoreHandler(
         StoreLocationDto storeLocation = await FetchStoreLocationAsync(storeLocationId, cancellationToken);
         ProductDto product = await FetchProductAsync(productId, cancellationToken);
 
+        await SyncProductCatalogAsync(product, cancellationToken);
+
         StoreProductReadEntity entity = new()
         {
             StoreLocationId = storeLocationId,
             ProductId = productId,
             Stock = stock,
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            ManufacturerId = product.ManufacturerId,
-            CategoryId = product.CategoryId,
-            ManufacturerName = product.Manufacturer?.Name ?? string.Empty,
-            CategoryName = product.Category?.Name ?? string.Empty,
             StoreDisplayName = storeLocation.DisplayName,
             StoreAddress = storeLocation.Address,
         };
@@ -57,13 +52,6 @@ public sealed class ProductAddedToStoreHandler(
         else
         {
             existing.Stock = entity.Stock;
-            existing.Name = entity.Name;
-            existing.Description = entity.Description;
-            existing.Price = entity.Price;
-            existing.ManufacturerId = entity.ManufacturerId;
-            existing.CategoryId = entity.CategoryId;
-            existing.ManufacturerName = entity.ManufacturerName;
-            existing.CategoryName = entity.CategoryName;
             existing.StoreDisplayName = entity.StoreDisplayName;
             existing.StoreAddress = entity.StoreAddress;
         }
@@ -76,6 +64,58 @@ public sealed class ProductAddedToStoreHandler(
             productId,
             storeLocationId,
             stock);
+    }
+
+    private async Task SyncProductCatalogAsync(ProductDto product, CancellationToken cancellationToken)
+    {
+        string manufacturerName = product.Manufacturer?.Name ?? string.Empty;
+        string categoryName = product.Category?.Name ?? string.Empty;
+
+        ManufacturerEntity? manufacturer = await readDbContext.Manufacturers
+            .FindAsync([product.ManufacturerId], cancellationToken);
+
+        if (manufacturer is null)
+        {
+            readDbContext.Manufacturers.Add(new ManufacturerEntity(product.ManufacturerId, manufacturerName));
+        }
+        else
+        {
+            manufacturer.Name = manufacturerName;
+        }
+
+        CategoryEntity? category = await readDbContext.Categories
+            .FindAsync([product.CategoryId], cancellationToken);
+
+        if (category is null)
+        {
+            readDbContext.Categories.Add(new CategoryEntity(product.CategoryId, categoryName));
+        }
+        else
+        {
+            category.Name = categoryName;
+        }
+
+        ProductEntity? productEntity = await readDbContext.Products
+            .FindAsync([product.ProductId], cancellationToken);
+
+        if (productEntity is null)
+        {
+            readDbContext.Products.Add(new ProductEntity(
+                product.ProductId,
+                product.Name,
+                product.Description,
+                product.Price,
+                product.ManufacturerId,
+                product.CategoryId));
+        }
+        else
+        {
+            productEntity.Name = product.Name;
+            productEntity.Description = product.Description;
+            productEntity.Price = product.Price;
+            productEntity.ManufacturerId = product.ManufacturerId;
+            productEntity.CategoryId = product.CategoryId;
+        }
     }
 
     private async Task SyncProductImagesAsync(

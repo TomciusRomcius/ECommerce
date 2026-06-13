@@ -16,6 +16,12 @@ public sealed class ReadDbContext : DbContext
 
     public DbSet<StoreProductReadEntity> StoreProducts { get; set; }
 
+    public DbSet<ProductEntity> Products { get; set; }
+
+    public DbSet<ManufacturerEntity> Manufacturers { get; set; }
+
+    public DbSet<CategoryEntity> Categories { get; set; }
+
     public DbSet<ProductImageReadEntity> ProductImages { get; set; }
 
     public DbSet<ProcessedMessageEntity> ProcessedMessages { get; set; }
@@ -34,8 +40,52 @@ public sealed class ReadDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<StoreProductReadEntity>()
-            .HasKey(entity => new { entity.StoreLocationId, entity.ProductId });
+        modelBuilder.Entity<StoreProductReadEntity>(entity =>
+        {
+            entity.HasKey(storeProduct => new { storeProduct.StoreLocationId, storeProduct.ProductId });
+
+            entity.HasOne(storeProduct => storeProduct.Product)
+                .WithMany()
+                .HasForeignKey(storeProduct => storeProduct.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<ManufacturerEntity>(entity =>
+        {
+            entity.HasKey(manufacturer => manufacturer.ManufacturerId);
+
+            entity.Property(manufacturer => manufacturer.ManufacturerId)
+                .ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<CategoryEntity>(entity =>
+        {
+            entity.HasKey(category => category.CategoryId);
+
+            entity.Property(category => category.CategoryId)
+                .ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<ProductEntity>(entity =>
+        {
+            entity.HasKey(product => product.ProductId);
+
+            entity.Property(product => product.ProductId)
+                .ValueGeneratedNever();
+
+            entity.HasOne(product => product.Category)
+                .WithMany()
+                .HasForeignKey(product => product.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            entity.HasOne(product => product.Manufacturer)
+                .WithMany()
+                .HasForeignKey(product => product.ManufacturerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
 
         modelBuilder.Entity<ProductImageReadEntity>(entity =>
         {
@@ -49,6 +99,12 @@ public sealed class ReadDbContext : DbContext
                 .IsRequired();
 
             entity.HasIndex(image => image.ProductId);
+
+            entity.HasOne<ProductEntity>()
+                .WithMany(product => product.Images)
+                .HasForeignKey(image => image.ProductId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired();
         });
 
         modelBuilder.Entity<ProcessedMessageEntity>(entity =>
