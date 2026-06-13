@@ -3,13 +3,7 @@ services:
     build:
       dockerfile: Dockerfile
       target: build
-    command:
-      [
-        "dotnet",
-        "watch",
-        "--project",
-        "ApiWorker.csproj",
-      ]
+    command: ["dotnet", "watch", "--project", "ApiWorker.csproj"]
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: 1
       ASPNETCORE_ENVIRONMENT: Development
@@ -27,11 +21,8 @@ services:
       MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
       MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
     volumes:
-      - ./Persistence:/app/Persistence
-      - ./Services:/app/Services
-      - ./Worker.cs:/app/Worker.cs
-      - ./Program.cs:/app/Program.cs
-      - ./Properties:/app/Properties
+      - ./Src:/app/Src
+      - ./Migrations:/app/Migrations
 
   read-db:
     image: postgres:17
@@ -72,5 +63,7 @@ services:
       - ./Persistence:/app/Persistence
       - ./Services:/app/Services
       - ./Worker.cs:/app/Worker.cs
+      - ./ProductStockUpdatedWorker.cs:/app/ProductStockUpdatedWorker.cs
+      - ./ProductRemovedFromStoreWorker.cs:/app/ProductRemovedFromStoreWorker.cs
       - ./Program.cs:/app/Program.cs
       - ./Properties:/app/Properties

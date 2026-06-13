@@ -27,7 +27,11 @@ builder.Services.AddSingleton<IOptions<KafkaConfiguration>>(
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<ReadDbContext>();
 builder.Services.AddScoped<IProductAddedToStoreHandler, ProductAddedToStoreHandler>();
+builder.Services.AddScoped<IProductStockUpdatedHandler, ProductStockUpdatedHandler>();
+builder.Services.AddScoped<IProductRemovedFromStoreHandler, ProductRemovedFromStoreHandler>();
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<ProductStockUpdatedWorker>();
+builder.Services.AddHostedService<ProductRemovedFromStoreWorker>();
 
 var host = builder.Build();
 host.Run();
