@@ -51,9 +51,9 @@ echo "S3__Region=us-east-1" >> ../BFF/.env
 echo "S3__ServiceUrl=http://localstack:4566" >> ../BFF/.env
 
 # Payment service
-echo "Database__Host=payment-service-postgres" > ../PaymentService/.env 
+echo "Database__Host=write-db" > ../PaymentService/.env 
 echo "Database__Port=5432" >> ../PaymentService/.env 
-echo "Database__Database=postgres" >> ../PaymentService/.env 
+echo "Database__Database=payment_db" >> ../PaymentService/.env 
 echo "Database__Username=postgres" >> ../PaymentService/.env 
 echo "Database__Password=postgres" >> ../PaymentService/.env 
 echo "Kafka__Servers=kafka" >> ../PaymentService/.env 
@@ -70,9 +70,9 @@ addJwtEnvs "PaymentService"
 addMicroserviceUrls "PaymentService"
 
 # Product service
-echo "Database__Host=product-service-postgres" > ../ProductService/.env 
+echo "Database__Host=write-db" > ../ProductService/.env 
 echo "Database__Port=5432" >> ../ProductService/.env 
-echo "Database__Database=postgres" >> ../ProductService/.env 
+echo "Database__Database=product_db" >> ../ProductService/.env 
 echo "Database__Username=postgres" >> ../ProductService/.env 
 echo "Database__Password=postgres" >> ../ProductService/.env 
 echo "Kafka__Servers=kafka" >> ../ProductService/.env 
@@ -81,9 +81,9 @@ addJwtEnvs "ProductService"
 addMicroserviceUrls "ProductService"
 
 # Store service
-echo "Database__Host=store-service-postgres" > ../StoreService/.env 
+echo "Database__Host=write-db" > ../StoreService/.env 
 echo "Database__Port=5432" >> ../StoreService/.env 
-echo "Database__Database=postgres" >> ../StoreService/.env 
+echo "Database__Database=store_db" >> ../StoreService/.env 
 echo "Database__Username=postgres" >> ../StoreService/.env 
 echo "Database__Password=postgres" >> ../StoreService/.env 
 echo "Kafka__Servers=kafka" >> ../StoreService/.env 
@@ -92,9 +92,9 @@ addJwtEnvs "StoreService"
 addMicroserviceUrls "StoreService"
 
 # User service
-echo "Database__Host=user-service-postgres" > ../UserService/.env 
+echo "Database__Host=write-db" > ../UserService/.env 
 echo "Database__Port=5432" >> ../UserService/.env 
-echo "Database__Database=postgres" >> ../UserService/.env 
+echo "Database__Database=user_db" >> ../UserService/.env 
 echo "Database__Username=postgres" >> ../UserService/.env 
 echo "Database__Password=postgres" >> ../UserService/.env 
 echo "Kafka__Servers=kafka" >> ../UserService/.env 
@@ -103,9 +103,9 @@ addJwtEnvs "UserService"
 addMicroserviceUrls "UserService"
 
 # Order service
-echo "Database__Host=order-service-postgres" > ../OrderService/.env 
+echo "Database__Host=write-db" > ../OrderService/.env 
 echo "Database__Port=5432" >> ../OrderService/.env 
-echo "Database__Database=postgres" >> ../OrderService/.env 
+echo "Database__Database=order_db" >> ../OrderService/.env 
 echo "Database__Username=postgres" >> ../OrderService/.env 
 echo "Database__Password=postgres" >> ../OrderService/.env 
 echo "Kafka__Servers=kafka" >> ../OrderService/.env

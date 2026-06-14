@@ -60,10 +60,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./Persistence:/app/Persistence
-      - ./Services:/app/Services
-      - ./Worker.cs:/app/Worker.cs
-      - ./ProductStockUpdatedWorker.cs:/app/ProductStockUpdatedWorker.cs
-      - ./ProductRemovedFromStoreWorker.cs:/app/ProductRemovedFromStoreWorker.cs
-      - ./Program.cs:/app/Program.cs
-      - ./Properties:/app/Properties
+      - ./Src:/app/Src
+      - ./Migrations:/app/Migrations

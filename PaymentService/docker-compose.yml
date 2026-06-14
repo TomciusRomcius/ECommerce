@@ -20,7 +20,7 @@ services:
       Logging__LogLevel__Default: Trace
       Logging__LogLevel__Microsoft: Warning
       Logging__LogLevel__Microsoft.AspNetCore: Warning
-      Database__Host: payment-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -55,11 +55,11 @@ services:
         "--host=${Database__Host}",
         "--username=${Database__Username}",
         "--database=${Database__Database}",
-        "--password=${Database__Database}",
+        "--password=${Database__Password}",
       ]
     restart: on-failure
     environment:
-      Database__Host: payment-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -70,9 +70,3 @@ services:
       - ./PaymentService.Application/src:/app/PaymentService.Application/src
       - ./PaymentService.Application/Migrations:/app/PaymentService.Application/Migrations
       - ./PaymentService.Domain/src:/app/PaymentService.Domain/src
-  payment-service-postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${Database__Username}
-      POSTGRES_PASSWORD: ${Database__Password}
-      POSTGRES_DB: ${Database__Database}

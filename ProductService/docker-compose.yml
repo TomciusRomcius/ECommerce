@@ -3,13 +3,7 @@ services:
     build:
       dockerfile: Dockerfile
       target: build
-    command:
-      [
-        "dotnet",
-        "watch",
-        "--project",
-        "ProductService.Presentation",
-      ]
+    command: ["dotnet", "watch", "--project", "ProductService.Presentation"]
     ports:
       - "8082:8080"
     environment:
@@ -19,7 +13,7 @@ services:
       Logging__LogLevel__Default: Trace
       Logging__LogLevel__Microsoft: Warning
       Logging__LogLevel__Microsoft.AspNetCore: Warning
-      Database__Host: product-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -59,11 +53,11 @@ services:
         "--host=${Database__Host}",
         "--database=${Database__Database}",
         "--username=${Database__Username}",
-        "--password=${Database__Password}"
+        "--password=${Database__Password}",
       ]
     restart: on-failure
     environment:
-      Database__Host: product-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -74,9 +68,3 @@ services:
       - ./ProductService.Application/src:/app/ProductService.Application/src
       - ./ProductService.Application/Migrations:/app/ProductService.Application/Migrations
       - ./ProductService.Domain/src:/app/ProductService.Domain/src
-  product-service-postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${Database__Username}
-      POSTGRES_PASSWORD: ${Database__Password}
-      POSTGRES_DB: ${Database__Database}

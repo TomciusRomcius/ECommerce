@@ -19,7 +19,7 @@ services:
       Logging__LogLevel__Default: Trace
       Logging__LogLevel__Microsoft: Warning
       Logging__LogLevel__Microsoft.AspNetCore: Warning
-      Database__Host: user-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -29,6 +29,9 @@ services:
       Jwt__Authority: ${Jwt__Authority}
       Jwt__Audience: ${Jwt__Audience}
       Kafka__Servers: kafka:9092
+    depends_on:
+      write-db:
+        condition: service_healthy
     volumes:
       - ./UserService.Presentation/Src:/app/UserService.Presentation/Src
       - ./UserService.Infrastructure/Src:/app/UserService.Infrastructure/Src
@@ -55,19 +58,16 @@ services:
       ]
     restart: on-failure
     environment:
-      Database__Host: ${Database__Host}
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
+    depends_on:
+      write-db:
+        condition: service_healthy
     volumes:
       - ./UserService.Presentation/Src:/app/UserService.Presentation/Src
       - ./UserService.Infrastructure/Src:/app/UserService.Infrastructure/Src
       - ./UserService.Application/Src:/app/UserService.Application/Src
       - ./UserService.Application/Migrations:/app/UserService.Application/Migrations
       - ./UserService.Domain/Src:/app/UserService.Domain/Src
-  user-service-postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${Database__Username}
-      POSTGRES_PASSWORD: ${Database__Password}
-      POSTGRES_DB: ${Database__Database}

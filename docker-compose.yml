@@ -10,6 +10,12 @@ include:
   - ./docker-compose-debug-tools.yml
 
 services:
+  write-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
   init-kafka:
     image: bitnamilegacy/kafka:4.0.0
     entrypoint: ["/scripts/kafka-create-topics.sh"]
@@ -46,12 +52,12 @@ services:
     command: start-dev --hostname http://localhost:8080/auth --hostname-backchannel-dynamic true --proxy-headers xforwarded
     restart: on-failure
     environment:
-        KC_DB: postgres
-        KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
-        KC_DB_USERNAME: keycloak
-        KC_DB_PASSWORD: password
-        KC_BOOTSTRAP_ADMIN_USERNAME: admin
-        KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
       - 9003:8080
     depends_on:
@@ -89,11 +95,11 @@ services:
     volumes:
       - ./DataSeeder:/app
   localstack:
-    container_name: '${LOCALSTACK_DOCKER_NAME:-localstack-main}'
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack
     ports:
-      - '127.0.0.1:4566:4566' # LocalStack Gateway
-      - '127.0.0.1:4510-4559:4510-4559' # external services port range
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
     environment:
       LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN}
       DEBUG: ${DEBUG:-0}
@@ -101,7 +107,7 @@ services:
       SERVICES: sts, iam, s3
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - '/var/run/docker.sock:/var/run/docker.sock'
+      - "/var/run/docker.sock:/var/run/docker.sock"
   localstack-infra-init:
     build:
       context: terraform/aws
@@ -110,7 +116,7 @@ services:
       - localstack
     environment:
       AWS_ENDPOINT_URL: http://localstack:4566
-      S3_HOSTNAME: localstack      
+      S3_HOSTNAME: localstack
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_DEFAULT_REGION: us-east-1

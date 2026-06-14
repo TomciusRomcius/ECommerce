@@ -19,7 +19,7 @@ services:
       Logging__LogLevel__Default: Trace
       Logging__LogLevel__Microsoft: Warning
       Logging__LogLevel__Microsoft.AspNetCore: Warning
-      Database__Host: store-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
@@ -34,6 +34,9 @@ services:
       MicroserviceNetworkConfig__OrderServiceUrl: ${MicroserviceNetworkConfig__OrderServiceUrl}
       MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
       MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
+    depends_on:
+      write-db:
+        condition: service_healthy
     volumes:
       - ./StoreService.Presentation/Src:/app/StoreService.Presentation/Src
       - ./StoreService.Infrastructure/Src:/app/StoreService.Infrastructure/Src
@@ -59,19 +62,16 @@ services:
       ]
     restart: on-failure
     environment:
-      Database__Host: store-service-postgres
+      Database__Host: write-db
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
+    depends_on:
+      write-db:
+        condition: service_healthy
     volumes:
       - ./StoreService.Presentation/Src:/app/StoreService.Presentation/Src
       - ./StoreService.Infrastructure/Src:/app/StoreService.Infrastructure/Src
       - ./StoreService.Application/Src:/app/StoreService.Application/Src
       - ./StoreService.Application/Migrations:/app/StoreService.Application/Migrations
       - ./StoreService.Domain/Src:/app/StoreService.Domain/Src
-  store-service-postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${Database__Username}
-      POSTGRES_PASSWORD: ${Database__Password}
-      POSTGRES_DB: ${Database__Database}
