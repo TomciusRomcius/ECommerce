@@ -22,3 +22,16 @@ kafka-topics.sh \
     --replication-factor 1 \
     --create > /dev/null 2>&1 || true
 
+kafka-topics.sh \
+    --bootstrap-server kafka:9092 \
+    --topic product-stock-updated \
+    --partitions 6 \
+    --replication-factor 1 \
+    --create > /dev/null 2>&1 || true
+
+kafka-topics.sh \
+    --bootstrap-server kafka:9092 \
+    --topic product-removed-from-store \
+    --partitions 6 \
+    --replication-factor 1 \
+    --create > /dev/null 2>&1 || true
