@@ -60,8 +60,6 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
       - 9003:8080
-    depends_on:
-      - keycloak-postgres
 
   keycloak-postgres:
     image: postgres:17.4
@@ -71,7 +69,6 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
-
   keycloak-config:
     build:
       context: ./terraform/keycloak
@@ -112,8 +109,6 @@ services:
     build:
       context: terraform/aws
     restart: on-failure
-    depends_on:
-      - localstack
     environment:
       AWS_ENDPOINT_URL: http://localstack:4566
       S3_HOSTNAME: localstack

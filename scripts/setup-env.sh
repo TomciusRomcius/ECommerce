@@ -34,7 +34,7 @@ jwtAudience=ecommerce-api
 
 # BFF
 echo "ASPNETCORE_URLS=http://+:8080" > ../BFF/.env
-echo "Database__Host=api-worker-postgres" >> ../BFF/.env
+echo "Database__Host=read-db" >> ../BFF/.env
 echo "Database__Port=5432" >> ../BFF/.env
 echo "Database__Database=read_db" >> ../BFF/.env
 echo "Database__Username=postgres" >> ../BFF/.env
@@ -114,7 +114,7 @@ addJwtEnvs "OrderService"
 addMicroserviceUrls "OrderService"
 
 # Api worker
-echo "Database__Host=api-worker-postgres" > ../ApiWorker/.env
+echo "Database__Host=api-read-db" > ../ApiWorker/.env
 echo "Database__Port=5432" >> ../ApiWorker/.env
 echo "Database__Database=read_db" >> ../ApiWorker/.env
 echo "Database__Username=postgres" >> ../ApiWorker/.env

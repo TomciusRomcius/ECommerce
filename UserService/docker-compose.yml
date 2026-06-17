@@ -29,9 +29,6 @@ services:
       Jwt__Authority: ${Jwt__Authority}
       Jwt__Audience: ${Jwt__Audience}
       Kafka__Servers: kafka:9092
-    depends_on:
-      write-db:
-        condition: service_healthy
     volumes:
       - ./UserService.Presentation/Src:/app/UserService.Presentation/Src
       - ./UserService.Infrastructure/Src:/app/UserService.Infrastructure/Src
@@ -62,9 +59,6 @@ services:
       Database__Database: ${Database__Database}
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
-    depends_on:
-      write-db:
-        condition: service_healthy
     volumes:
       - ./UserService.Presentation/Src:/app/UserService.Presentation/Src
       - ./UserService.Infrastructure/Src:/app/UserService.Infrastructure/Src
