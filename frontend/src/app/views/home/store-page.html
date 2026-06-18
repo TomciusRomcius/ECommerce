@@ -38,11 +38,11 @@
           <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
           @if (!isStoreFiltered() && product.store) {
             <p class="text-xs text-gray-500">
-              {{ product.store.displayName }} · {{ product.store.stock }} in stock
+              {{ product.store.displayName }} · {{ product.stock }} in stock
             </p>
           }
           @if (isStoreFiltered() && product.store) {
-            <p class="text-xs text-gray-500">{{ product.store.stock }} in stock</p>
+            <p class="text-xs text-gray-500">{{ product.stock }} in stock</p>
           }
           <p class="font-semibold">{{ product.price | currency }}</p>
           <a
