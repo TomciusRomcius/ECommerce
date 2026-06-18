@@ -8,40 +8,50 @@ using EventSystemHelper.Kafka.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace ApiWorker;
+namespace ApiWorker.Infrastructure;
 
-public class ProductRemovedFromStoreWorker(
-    ILogger<ProductRemovedFromStoreWorker> logger,
+public abstract class KafkaEventWorker<TEvent>(
+    ILogger logger,
     IOptions<KafkaConfiguration> kafkaConfiguration,
     IServiceScopeFactory serviceScopeFactory) : BackgroundService
+    where TEvent : Event
 {
-    private readonly string _groupId = "api-worker";
-    private readonly string _topic = "product-removed-from-store";
+    private const string GroupId = "api-worker";
+
+    protected abstract string Topic { get; }
+
+    protected abstract string EventLabel { get; }
+
+    protected virtual async Task HandleEventAsync(
+        TEvent ev,
+        IServiceScope scope,
+        CancellationToken cancellationToken)
+    {
+        IEventHandler<TEvent> handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEvent>>();
+        await handler.HandleAsync(ev, cancellationToken);
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        KafkaEventConsumer consumer = new KafkaEventConsumer(
+        KafkaEventConsumer consumer = new(
             kafkaConfiguration.Value,
             AutoOffsetReset.Earliest,
-            _groupId,
-            _topic);
+            GroupId,
+            Topic);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                ProductRemovedFromStoreEvent? ev = consumer.Consume<ProductRemovedFromStoreEvent>(stoppingToken);
+                TEvent? ev = consumer.Consume<TEvent>(stoppingToken);
                 if (ev == null)
                 {
-                    logger.LogError("Failed to consume event {Topic}", _topic);
+                    logger.LogError("Failed to consume event {Topic}", Topic);
                     break;
                 }
 
                 using IServiceScope scope = serviceScopeFactory.CreateScope();
-                ReadDbContext readDbContext =
-                    scope.ServiceProvider.GetRequiredService<ReadDbContext>();
-                IProductRemovedFromStoreHandler handler =
-                    scope.ServiceProvider.GetRequiredService<IProductRemovedFromStoreHandler>();
+                ReadDbContext readDbContext = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
 
                 string messageId = ev.MessageId.ToString();
                 bool alreadyProcessed = await readDbContext.ProcessedMessages
@@ -54,10 +64,7 @@ public class ProductRemovedFromStoreWorker(
                     continue;
                 }
 
-                await handler.HandleAsync(
-                    ev.StoreLocationId,
-                    ev.ProductId,
-                    stoppingToken);
+                await HandleEventAsync(ev, scope, stoppingToken);
 
                 readDbContext.ProcessedMessages.Add(new ProcessedMessageEntity
                 {
@@ -65,13 +72,11 @@ public class ProductRemovedFromStoreWorker(
                 });
                 await readDbContext.SaveChangesAsync(stoppingToken);
 
-                logger.LogInformation("Product-removed-from-store event handled: {@Event}", ev);
+                logger.LogInformation("{EventLabel} event handled: {@Event}", EventLabel, ev);
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    ex,
-                    "Failed to process product-removed-from-store event.");
+                logger.LogError(ex, "Failed to process {EventLabel} event.", EventLabel);
             }
         }
     }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using BFF.Configuration;
 using BFF.ReadDb;
 using BFF.ReadDb.Entities;
 using BFF.Utils;
@@ -13,6 +14,7 @@ public class StoreProductsService(
     IHttpClientFactory httpClientFactory,
     ReadDbContext readDbContext,
     IOptions<MicroserviceHosts> hosts,
+    IS3ImageUrlBuilder s3ImageUrlBuilder,
     IMapper mapper,
     ILogger<StoreProductsService> logger) : IStoreProductsService
 {
@@ -28,27 +30,23 @@ public class StoreProductsService(
 
         if (storeLocationId is not null)
         {
-            storeProductsQuery = storeProductsQuery.Where(product => product.StoreLocationId == storeLocationId.Value);
+            storeProductsQuery = storeProductsQuery
+                .Where(product => product.StoreLocationId == storeLocationId.Value);
         }
 
+        storeProductsQuery = storeProductsQuery
+            .OrderBy(storeProduct => storeProduct.StoreLocationId);
         int totalCount = await storeProductsQuery.CountAsync(cancellationToken);
 
-        List<StoreProductReadEntity> rows = await storeProductsQuery
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(product => product.Manufacturer)
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(product => product.Category)
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(product => product.Images)
-            .OrderBy(p => p.ProductId)
-            .ThenBy(p => p.StoreLocationId)
+        storeProductsQuery = storeProductsQuery
             .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .GroupBy(p => p.ProductId)
-            .Select(g => g.First())
-            .ToListAsync(cancellationToken);
+            .Take(pageSize);
 
-        List<StoreProductDto> data = mapper.Map<List<StoreProductDto>>(rows);
+        List<StoreProductReadRow> rows = await FetchPaginatedJoinedRowsAsync(
+            storeProductsQuery,
+            cancellationToken);
+
+        List<StoreProductDto> data = await MapRowsToDtosAsync(rows, cancellationToken);
 
         int fetchedCount = (pageNumber * pageSize) + data.Count;
         return new Page<StoreProductDto>
@@ -65,19 +63,22 @@ public class StoreProductsService(
         int productId,
         CancellationToken cancellationToken = default)
     {
-        StoreProductReadEntity? product = await readDbContext.StoreProducts
+        IQueryable<StoreProductReadEntity> storeProductQuery = readDbContext.StoreProducts
             .AsNoTracking()
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(productEntity => productEntity.Manufacturer)
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(productEntity => productEntity.Category)
-            .Include(storeProduct => storeProduct.Product)
-                .ThenInclude(productEntity => productEntity.Images)
-            .Where(storeProduct => storeProduct.ProductId == productId)
-            .OrderBy(storeProduct => storeProduct.StoreLocationId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .Where(storeProduct => storeProduct.ProductId == productId);
 
-        return product is null ? null : mapper.Map<StoreProductDto>(product);
+        List<StoreProductReadRow> rows = await FetchPaginatedJoinedRowsAsync(
+            storeProductQuery,
+            cancellationToken);
+
+        StoreProductReadRow? row = rows.FirstOrDefault();
+        if (row is null)
+        {
+            return null;
+        }
+
+        List<StoreProductDto> dtos = await MapRowsToDtosAsync([row], cancellationToken);
+        return dtos.FirstOrDefault();
     }
 
     public async Task<HttpResponseMessage> UpdateProductStockAsync(
@@ -124,4 +125,64 @@ public class StoreProductsService(
         return await _httpClient.SendAsync(request, cancellationToken);
     }
 
+    private async Task<List<StoreProductReadRow>> FetchPaginatedJoinedRowsAsync(
+        IQueryable<StoreProductReadEntity> query,
+        CancellationToken cancellationToken)
+    {
+        List<StoreProductReadRow> products = await (
+            from storeProduct in query
+            join product in readDbContext.Products.AsNoTracking()
+                on storeProduct.ProductId equals product.ProductId
+            join category in readDbContext.Categories.AsNoTracking()
+                on product.CategoryId equals category.CategoryId
+            join manufacturer in readDbContext.Manufacturers.AsNoTracking()
+                on product.ManufacturerId equals manufacturer.ManufacturerId
+            select new StoreProductReadRow
+            {
+                StoreProduct = storeProduct,
+                Product = product,
+                Category = category,
+                Manufacturer = manufacturer,
+            }
+        ).ToListAsync(cancellationToken);
+
+        return products;
+    }
+
+    private async Task<List<StoreProductDto>> MapRowsToDtosAsync(
+        IReadOnlyList<StoreProductReadRow> rows,
+        CancellationToken cancellationToken)
+    {
+        if (rows.Count == 0)
+        {
+            return [];
+        }
+
+        List<int> productIds = rows.Select(row => row.StoreProduct.ProductId).Distinct().ToList();
+
+        List<ProductImageReadEntity> images = await readDbContext.ProductImages
+            .AsNoTracking()
+            .Where(image => productIds.Contains(image.ProductId))
+            .ToListAsync(cancellationToken);
+
+        Dictionary<int, List<ProductImageReadEntity>> imagesByProductId = images
+            .GroupBy(image => image.ProductId)
+            .ToDictionary(group => group.Key, group => group.ToList());
+
+        List<StoreProductDto> dtos = mapper.Map<List<StoreProductDto>>(rows);
+
+        foreach (StoreProductDto dto in dtos)
+        {
+            if (!imagesByProductId.TryGetValue(dto.ProductId, out List<ProductImageReadEntity>? productImages))
+            {
+                continue;
+            }
+
+            dto.ImageUrls = s3ImageUrlBuilder
+                .BuildUrls(productImages.Select(image => image.S3Key))
+                .ToList();
+        }
+
+        return dtos;
+    }
 }

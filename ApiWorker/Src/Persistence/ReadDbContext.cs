@@ -44,11 +44,7 @@ public sealed class ReadDbContext : DbContext
         {
             entity.HasKey(storeProduct => new { storeProduct.StoreLocationId, storeProduct.ProductId });
 
-            entity.HasOne(storeProduct => storeProduct.Product)
-                .WithMany()
-                .HasForeignKey(storeProduct => storeProduct.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+            entity.HasIndex(storeProduct => storeProduct.ProductId);
         });
 
         modelBuilder.Entity<ManufacturerEntity>(entity =>
@@ -74,17 +70,8 @@ public sealed class ReadDbContext : DbContext
             entity.Property(product => product.ProductId)
                 .ValueGeneratedNever();
 
-            entity.HasOne(product => product.Category)
-                .WithMany()
-                .HasForeignKey(product => product.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-
-            entity.HasOne(product => product.Manufacturer)
-                .WithMany()
-                .HasForeignKey(product => product.ManufacturerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+            entity.HasIndex(product => product.CategoryId);
+            entity.HasIndex(product => product.ManufacturerId);
         });
 
         modelBuilder.Entity<ProductImageReadEntity>(entity =>
@@ -92,19 +79,13 @@ public sealed class ReadDbContext : DbContext
             entity.HasKey(image => image.ProductImageId);
 
             entity.Property(image => image.ProductImageId)
-                .ValueGeneratedOnAdd();
+                .ValueGeneratedNever();
 
             entity.Property(image => image.S3Key)
                 .HasMaxLength(36)
                 .IsRequired();
 
             entity.HasIndex(image => image.ProductId);
-
-            entity.HasOne<ProductEntity>()
-                .WithMany(product => product.Images)
-                .HasForeignKey(image => image.ProductId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
         });
 
         modelBuilder.Entity<ProcessedMessageEntity>(entity =>

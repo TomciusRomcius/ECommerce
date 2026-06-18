@@ -1,32 +1,25 @@
 using ApiWorker.Persistence;
 using ApiWorker.Persistence.Entities;
+using ECommerceBackend.EventTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiWorker.Services;
 
-public interface IProductRemovedFromStoreHandler
-{
-    Task HandleAsync(int storeLocationId, int productId, CancellationToken cancellationToken);
-}
-
 public sealed class ProductRemovedFromStoreHandler(
     ReadDbContext readDbContext,
-    ILogger<ProductRemovedFromStoreHandler> logger) : IProductRemovedFromStoreHandler
+    ILogger<ProductRemovedFromStoreHandler> logger) : IEventHandler<ProductRemovedFromStoreEvent>
 {
-    public async Task HandleAsync(
-        int storeLocationId,
-        int productId,
-        CancellationToken cancellationToken)
+    public async Task HandleAsync(ProductRemovedFromStoreEvent ev, CancellationToken cancellationToken)
     {
         StoreProductReadEntity? entity = await readDbContext.StoreProducts
-            .FindAsync([storeLocationId, productId], cancellationToken);
+            .FindAsync([ev.StoreLocationId, ev.ProductId], cancellationToken);
 
         if (entity is null)
         {
             logger.LogWarning(
                 "Store product not found for removal: product {ProductId} at store location {StoreLocationId}",
-                productId,
-                storeLocationId);
+                ev.ProductId,
+                ev.StoreLocationId);
             return;
         }
 
@@ -35,7 +28,7 @@ public sealed class ProductRemovedFromStoreHandler(
 
         logger.LogInformation(
             "Removed product {ProductId} from store location {StoreLocationId} in read model",
-            productId,
-            storeLocationId);
+            ev.ProductId,
+            ev.StoreLocationId);
     }
 }

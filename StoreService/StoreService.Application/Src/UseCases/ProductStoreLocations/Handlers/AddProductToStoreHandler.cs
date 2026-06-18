@@ -1,5 +1,5 @@
-using System.Text.Json;
 using ECommerceBackend.EventTypes;
+using ECommerceBackend.Utils;
 using EventSystemHelper.Kafka.Services;
 using EventSystemHelper.Kafka.Utils;
 using MediatR;
@@ -34,17 +34,17 @@ public class AddProductToStoreHandler(
                 "Successfully added product with id: {ProductId} to the store",
                 request.ProductStoreLocation.ProductId
             );
-            
-            var producer = new KafkaEventProducer(kafkaConfiguration.Value);
-            var kafkaEvent = new ProductAddedToStoreEvent()
+
+            var kafkaEvent = new ProductAddedToStoreEvent
             {
                 ProductId = request.ProductStoreLocation.ProductId,
                 StoreLocationId = request.ProductStoreLocation.StoreLocationId,
                 Stock = request.ProductStoreLocation.Stock,
             };
-            string kafkaEventJson = JsonSerializer.Serialize(kafkaEvent);
-            await producer.ProduceEventAsync("product-added-to-store", kafkaEventJson, cancellationToken);
-            
+            string sEvent = JsonUtils.Serialize(kafkaEvent);
+            await new KafkaEventProducer(kafkaConfiguration.Value)
+                .ProduceEventAsync("product-added-to-store", sEvent, cancellationToken);
+
             return null;
         }
         catch (Exception ex)

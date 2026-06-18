@@ -1,5 +1,10 @@
+using ECommerceBackend.EventTypes;
+using ECommerceBackend.Utils;
+using EventSystemHelper.Kafka.Services;
+using EventSystemHelper.Kafka.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ProductService.Application.Persistence;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Utils;
@@ -11,18 +16,23 @@ public interface ICategoriesService
     public Task<List<CategoryEntity>> GetCategoriesAsync(
         string searchText,
         CancellationToken cancellationToken = default);
-    public Task<Result<int>> CreateCategoryAsync(CategoryEntity entity);
+    public Task<Result<int>> CreateCategoryAsync(CategoryEntity entity, CancellationToken cancellationToken = default);
 }
 
 public class CategoriesService : ICategoriesService
 {
     private readonly DatabaseContext _context;
     private readonly ILogger<CategoriesService> _logger;
+    private readonly KafkaConfiguration _kafkaConfiguration;
 
-    public CategoriesService(ILogger<CategoriesService> logger, DatabaseContext context)
+    public CategoriesService(
+        ILogger<CategoriesService> logger,
+        DatabaseContext context,
+        IOptions<KafkaConfiguration> kafkaConfiguration)
     {
         _logger = logger;
         _context = context;
+        _kafkaConfiguration = kafkaConfiguration.Value;
     }
 
     public async Task<List<CategoryEntity>> GetCategoriesAsync(
@@ -43,16 +53,18 @@ public class CategoriesService : ICategoriesService
         return result;
     }
 
-    public async Task<Result<int>> CreateCategoryAsync(CategoryEntity entity)
+    public async Task<Result<int>> CreateCategoryAsync(
+        CategoryEntity entity,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Entered CreateCategory");
         _logger.LogDebug("Creating category: {}", entity.Name);
 
-        await _context.Categories.AddAsync(entity);
+        await _context.Categories.AddAsync(entity, cancellationToken);
 
         try
         {
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Successfully created category: {@Category}", entity);
         }
         catch (Exception ex)
@@ -62,6 +74,16 @@ public class CategoriesService : ICategoriesService
                 new ResultError(ResultErrorType.UNKNOWN_ERROR, "Failed to create the product")
             ]);
         }
+
+        var ev = new CategoryCreatedEvent
+        {
+            CategoryId = entity.CategoryId,
+            Name = entity.Name,
+        };
+
+        string sEvent = JsonUtils.Serialize(ev);
+        await new KafkaEventProducer(_kafkaConfiguration)
+            .ProduceEventAsync("category-created", sEvent, cancellationToken);
 
         return new Result<int>(entity.CategoryId);
     }

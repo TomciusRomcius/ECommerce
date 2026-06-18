@@ -41,6 +41,20 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
         {
             await _context.SaveChangesAsync(cancellationToken);
 
+            var ev = new ProductCreatedEvent
+            {
+                ProductId = productEntity.ProductId,
+                Name = productEntity.Name,
+                Description = productEntity.Description,
+                Price = productEntity.Price,
+                ManufacturerId = productEntity.ManufacturerId,
+                CategoryId = productEntity.CategoryId,
+            };
+
+            string sEvent = JsonUtils.Serialize(ev);
+            await new KafkaEventProducer(_kafkaConfiguration)
+                .ProduceEventAsync("product-created", sEvent, cancellationToken);
+
             IReadOnlyList<string> imageKeys = request.ImageKeys;
             if (imageKeys.Count == 0 && request.ImageCount > 0)
             {
@@ -49,6 +63,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
                     .ToList();
             }
 
+            List<ProductImageEntity> createdImages = [];
             foreach (string imageKey in imageKeys)
             {
                 if (string.IsNullOrWhiteSpace(imageKey))
@@ -56,26 +71,31 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
                     continue;
                 }
 
-                await _context.ProductImages.AddAsync(
-                    new ProductImageEntity(productEntity.ProductId, imageKey.Trim()),
-                    cancellationToken);
+                var imageEntity = new ProductImageEntity(productEntity.ProductId, imageKey.Trim());
+                createdImages.Add(imageEntity);
+                await _context.ProductImages.AddAsync(imageEntity, cancellationToken);
             }
 
-            if (imageKeys.Count > 0)
+            if (createdImages.Count > 0)
             {
                 await _context.SaveChangesAsync(cancellationToken);
+
+                KafkaEventProducer producer = new(_kafkaConfiguration);
+                foreach (ProductImageEntity image in createdImages)
+                {
+                    var imageEv = new ProductImageCreatedEvent
+                    {
+                        ProductImageId = image.ProductImageId,
+                        ProductId = image.ProductId,
+                        S3Key = image.S3Key,
+                    };
+
+                    await producer.ProduceEventAsync(
+                        "product-image-created",
+                        JsonUtils.Serialize(imageEv),
+                        cancellationToken);
+                }
             }
-
-            var ev = new ProductCreatedEvent
-            {
-                ProductId = productEntity.ProductId,
-                Name = productEntity.Name,
-                Price = productEntity.Price,
-            };
-
-            string sEvent = JsonUtils.Serialize(ev);
-            await new KafkaEventProducer(_kafkaConfiguration)
-                .ProduceEventAsync("product-created", sEvent, cancellationToken);
         }
         catch (Exception ex)
         {

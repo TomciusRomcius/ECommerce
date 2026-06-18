@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApiWorker.Persistence.Entities;
 
@@ -37,13 +36,7 @@ public sealed class ProductEntity
     [Range(0.1, double.MaxValue, ErrorMessage = "Invalid ProductId")]
     public decimal Price { get; set; }
 
-    [ForeignKey(nameof(Manufacturer))]
     public int ManufacturerId { get; set; }
 
-    [ForeignKey(nameof(Category))]
     public int CategoryId { get; set; }
-
-    public ManufacturerEntity? Manufacturer { get; set; }
-    public CategoryEntity? Category { get; set; }
-    public ICollection<ProductImageReadEntity> Images { get; set; } = [];
 }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProductService.Application.Persistence;
 using ProductService.Application.UseCases.Product.Commands;
+using ProductService.Domain.Entities;
 
 namespace ProductService.Application.UseCases.Product.Handlers;
 
@@ -34,8 +35,12 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand>
 
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
+        List<ProductImageEntity> images = await _context.ProductImages
+            .Where(image => image.ProductId == request.ProductId)
+            .ToListAsync(cancellationToken);
+
         await _context.ProductImages
-            .Where(pi => pi.ProductId == request.ProductId)
+            .Where(image => image.ProductId == request.ProductId)
             .ExecuteDeleteAsync(cancellationToken);
 
         var rowsDeleted = await _context.Products
@@ -51,6 +56,21 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand>
         }
 
         _logger.LogInformation("Deleted product with id: {ProductId}", request.ProductId);
+
+        KafkaEventProducer producer = new(_kafkaConfiguration);
+        foreach (ProductImageEntity image in images)
+        {
+            var imageEv = new ProductImageDeletedEvent
+            {
+                ProductImageId = image.ProductImageId,
+                ProductId = image.ProductId,
+            };
+
+            await producer.ProduceEventAsync(
+                "product-image-deleted",
+                JsonUtils.Serialize(imageEv),
+                cancellationToken);
+        }
 
         var ev = new ProductDeletedEvent
         {

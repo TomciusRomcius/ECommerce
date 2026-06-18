@@ -11,6 +11,4 @@ public sealed class StoreProductReadEntity
     public string StoreDisplayName { get; set; } = string.Empty;
 
     public string StoreAddress { get; set; } = string.Empty;
-
-    public ProductEntity Product { get; set; } = null!;
 }

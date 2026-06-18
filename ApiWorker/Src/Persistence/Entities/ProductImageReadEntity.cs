@@ -7,6 +7,13 @@ public sealed class ProductImageReadEntity
         S3Key = null!;
     }
 
+    public ProductImageReadEntity(int productImageId, int productId, string s3Key)
+    {
+        ProductImageId = productImageId;
+        ProductId = productId;
+        S3Key = s3Key;
+    }
+
     public ProductImageReadEntity(int productId, string s3Key)
     {
         ProductId = productId;

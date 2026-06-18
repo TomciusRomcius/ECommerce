@@ -74,7 +74,10 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand>
         {
             ProductId = product.ProductId,
             Name = product.Name,
+            Description = product.Description,
             Price = product.Price,
+            ManufacturerId = product.ManufacturerId,
+            CategoryId = product.CategoryId,
         };
 
         string sEvent = JsonUtils.Serialize(ev);

@@ -15,11 +15,6 @@ services:
       Database__Username: ${Database__Username}
       Database__Password: ${Database__Password}
       Kafka__Servers: ${Kafka__Servers}
-      MicroserviceNetworkConfig__ProductServiceUrl: ${MicroserviceNetworkConfig__ProductServiceUrl}
-      MicroserviceNetworkConfig__StoreServiceUrl: ${MicroserviceNetworkConfig__StoreServiceUrl}
-      MicroserviceNetworkConfig__OrderServiceUrl: ${MicroserviceNetworkConfig__OrderServiceUrl}
-      MicroserviceNetworkConfig__PaymentServiceUrl: ${MicroserviceNetworkConfig__PaymentServiceUrl}
-      MicroserviceNetworkConfig__UserServiceUrl: ${MicroserviceNetworkConfig__UserServiceUrl}
     volumes:
       - ./Src:/app/Src
       - ./Migrations:/app/Migrations

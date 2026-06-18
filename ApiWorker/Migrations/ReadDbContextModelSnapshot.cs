@@ -104,10 +104,7 @@ namespace ApiWorker.Persistence.Migrations
             modelBuilder.Entity("ApiWorker.Persistence.Entities.ProductImageReadEntity", b =>
                 {
                     b.Property<int>("ProductImageId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProductImageId"));
 
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -148,50 +145,6 @@ namespace ApiWorker.Persistence.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("StoreProducts");
-                });
-
-            modelBuilder.Entity("ApiWorker.Persistence.Entities.ProductEntity", b =>
-                {
-                    b.HasOne("ApiWorker.Persistence.Entities.CategoryEntity", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApiWorker.Persistence.Entities.ManufacturerEntity", "Manufacturer")
-                        .WithMany()
-                        .HasForeignKey("ManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Manufacturer");
-                });
-
-            modelBuilder.Entity("ApiWorker.Persistence.Entities.ProductImageReadEntity", b =>
-                {
-                    b.HasOne("ApiWorker.Persistence.Entities.ProductEntity", null)
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApiWorker.Persistence.Entities.StoreProductReadEntity", b =>
-                {
-                    b.HasOne("ApiWorker.Persistence.Entities.ProductEntity", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ApiWorker.Persistence.Entities.ProductEntity", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }
