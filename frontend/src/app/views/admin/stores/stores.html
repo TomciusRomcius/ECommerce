@@ -2,7 +2,7 @@
   <h1 class="text-xl">Stores</h1>
   <a mat-flat-button routerLink="/admin/stores/create">Create</a>
 </div>
-<table mat-table [dataSource]="storeLocations()" class="w-full">
+<table mat-table [dataSource]="storeLocations().data" class="w-full">
   <ng-container matColumnDef="displayName">
     <th mat-header-cell *matHeaderCellDef>Name</th>
     <td mat-cell *matCellDef="let store">{{ store.displayName }}</td>

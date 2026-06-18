@@ -1,8 +1,12 @@
-using System.Net.Http.Json;
+using AutoMapper;
+using BFF.ReadDb;
+using BFF.ReadDb.Entities;
 using BFF.Utils;
 using ECommerceBackend.Utils.Microservices;
+using ECommerceBackend.Utils.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace BFF.StoreLocations;
@@ -16,19 +20,30 @@ public class StoreLocationDto
 
 [ApiController]
 [Route("[controller]")]
-public class StoreLocationsController(ILogger<StoreLocationsController> logger, HttpClient httpClient, IOptions<MicroserviceHosts> hosts) : ControllerBase
+public class StoreLocationsController(
+    ILogger<StoreLocationsController> logger,
+    HttpClient httpClient,
+    ReadDbContext readDbContext,
+    IOptions<MicroserviceHosts> hosts,
+    IMapper mapper) : ControllerBase
 {
+    private const int PageSize = 20;
+
     [HttpGet]
-    public async Task<IActionResult> GetStoreLocations([FromQuery] int page)
+    public async Task<IActionResult> GetStoreLocations(
+        [FromQuery] int page,
+        CancellationToken cancellationToken = default)
     {
-        var upstreamUrl = $"{hosts.Value.StoreServiceUrl}/StoreLocation?pageNumber={page}";
-        logger.LogDebug("Fetching store locations from {Url}", upstreamUrl);
+        logger.LogDebug("Fetching store locations from ReadDB, page {Page}", page);
 
-        var response = await httpClient.GetAsync(upstreamUrl);
-        response.EnsureSuccessStatusCode();
+        var locations = await readDbContext.StoreLocations
+            .AsNoTracking()
+            .OrderBy(storeLocation => storeLocation.StoreLocationId)
+            .Skip((page - 1) * PageSize)
+            .Take(PageSize)
+            .ToPageAsync(page, PageSize);
 
-        var locations = await response.Content.ReadFromJsonAsync<List<StoreLocationDto>>();
-        return Ok(new { data = locations });
+        return Ok(new { data = mapper.MapPage<StoreLocationEntity, StoreLocationDto>(locations) });
     }
 
     [HttpGet("{storeLocationId:int}")]
@@ -36,24 +51,28 @@ public class StoreLocationsController(ILogger<StoreLocationsController> logger, 
         int storeLocationId,
         CancellationToken cancellationToken = default)
     {
-        var upstreamUrl = $"{hosts.Value.StoreServiceUrl}/StoreLocation/{storeLocationId}";
-        logger.LogDebug("Fetching store location {StoreLocationId} from {Url}", storeLocationId, upstreamUrl);
+        logger.LogDebug("Fetching store location {StoreLocationId} from ReadDB", storeLocationId);
 
-        var response = await httpClient.GetAsync(upstreamUrl, cancellationToken);
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            return NotFound();
-        }
+        StoreLocationEntity? location = await readDbContext.StoreLocations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                storeLocation => storeLocation.StoreLocationId == storeLocationId,
+                cancellationToken);
 
-        response.EnsureSuccessStatusCode();
-
-        var location = await response.Content.ReadFromJsonAsync<StoreLocationDto>(cancellationToken);
         if (location is null)
         {
             return NotFound();
         }
 
-        return Ok(new { data = location });
+        return Ok(new
+        {
+            data = new StoreLocationDto
+            {
+                StoreLocationId = location.StoreLocationId,
+                DisplayName = location.DisplayName,
+                Address = location.Address,
+            },
+        });
     }
 
     [HttpPost]
@@ -87,4 +106,3 @@ public class StoreLocationsController(ILogger<StoreLocationsController> logger, 
         return HttpResponseUtils.FromStringBody((int)response.StatusCode, body);
     }
 }
-

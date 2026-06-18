@@ -1,6 +1,6 @@
 using ApiWorker.Persistence;
+using ApiWorker.Persistence.Entities;
 using ECommerceBackend.EventTypes;
-using Microsoft.EntityFrameworkCore;
 
 namespace ApiWorker.Services;
 
@@ -10,17 +10,15 @@ public sealed class StoreCreatedHandler(
 {
     public async Task HandleAsync(StoreCreatedEvent ev, CancellationToken cancellationToken)
     {
-        int rowsUpdated = await readDbContext.StoreProducts
-            .Where(storeProduct => storeProduct.StoreLocationId == ev.StoreLocationId)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(storeProduct => storeProduct.StoreDisplayName, ev.DisplayName)
-                    .SetProperty(storeProduct => storeProduct.StoreAddress, ev.Address),
-                cancellationToken);
+        readDbContext.StoreLocations.Add(new StoreLocationEntity(
+            ev.StoreLocationId,
+            ev.DisplayName,
+            ev.Address));
+
+        await readDbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Store created event received for store location {StoreLocationId}; updated metadata on {RowsUpdated} store products",
-            ev.StoreLocationId,
-            rowsUpdated);
+            "Upserted store location {StoreLocationId} in read model",
+            ev.StoreLocationId);
     }
 }

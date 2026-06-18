@@ -16,6 +16,8 @@ public sealed class ReadDbContext : DbContext
 
     public DbSet<StoreProductReadEntity> StoreProducts { get; set; }
 
+    public DbSet<StoreLocationEntity> StoreLocations { get; set; }
+
     public DbSet<ProductEntity> Products { get; set; }
 
     public DbSet<ManufacturerEntity> Manufacturers { get; set; }
@@ -45,6 +47,14 @@ public sealed class ReadDbContext : DbContext
             entity.HasKey(storeProduct => new { storeProduct.StoreLocationId, storeProduct.ProductId });
 
             entity.HasIndex(storeProduct => storeProduct.ProductId);
+        });
+
+        modelBuilder.Entity<StoreLocationEntity>(entity =>
+        {
+            entity.HasKey(storeLocation => storeLocation.StoreLocationId);
+
+            entity.Property(storeLocation => storeLocation.StoreLocationId)
+                .ValueGeneratedNever();
         });
 
         modelBuilder.Entity<ManufacturerEntity>(entity =>

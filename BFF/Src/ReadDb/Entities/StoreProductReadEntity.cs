@@ -7,8 +7,4 @@ public sealed class StoreProductReadEntity
     public int ProductId { get; set; }
 
     public int Stock { get; set; }
-
-    public string StoreDisplayName { get; set; } = string.Empty;
-
-    public string StoreAddress { get; set; } = string.Empty;
 }

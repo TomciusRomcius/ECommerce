@@ -10,13 +10,18 @@ public sealed class StoreDeletedHandler(
 {
     public async Task HandleAsync(StoreDeletedEvent ev, CancellationToken cancellationToken)
     {
-        int rowsDeleted = await readDbContext.StoreProducts
+        int storeProductsDeleted = await readDbContext.StoreProducts
             .Where(storeProduct => storeProduct.StoreLocationId == ev.StoreLocationId)
             .ExecuteDeleteAsync(cancellationToken);
 
+        int storeLocationsDeleted = await readDbContext.StoreLocations
+            .Where(storeLocation => storeLocation.StoreLocationId == ev.StoreLocationId)
+            .ExecuteDeleteAsync(cancellationToken);
+
         logger.LogInformation(
-            "Removed {RowsDeleted} store products for deleted store location {StoreLocationId}",
-            rowsDeleted,
-            ev.StoreLocationId);
+            "Removed store location {StoreLocationId} from read model; deleted {StoreProductsDeleted} store products and {StoreLocationsDeleted} store location rows",
+            ev.StoreLocationId,
+            storeProductsDeleted,
+            storeLocationsDeleted);
     }
 }

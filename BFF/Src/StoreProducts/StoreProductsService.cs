@@ -137,12 +137,16 @@ public class StoreProductsService(
                 on product.CategoryId equals category.CategoryId
             join manufacturer in readDbContext.Manufacturers.AsNoTracking()
                 on product.ManufacturerId equals manufacturer.ManufacturerId
+            join storeLocation in readDbContext.StoreLocations.AsNoTracking()
+                on storeProduct.StoreLocationId equals storeLocation.StoreLocationId into storeLocations
+            from storeLocation in storeLocations.DefaultIfEmpty()
             select new StoreProductReadRow
             {
                 StoreProduct = storeProduct,
                 Product = product,
                 Category = category,
                 Manufacturer = manufacturer,
+                StoreLocation = storeLocation,
             }
         ).ToListAsync(cancellationToken);
 

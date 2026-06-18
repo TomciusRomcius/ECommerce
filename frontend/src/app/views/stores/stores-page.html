@@ -1,6 +1,6 @@
 <app-page-padder>
   <div class="grid grid-cols-3 gap-4">
-    @for (store of storeLocations(); track store.storeLocationId) {
+    @for (store of storeLocations().data; track store.storeLocationId) {
       <mat-card
         class="flex h-full cursor-pointer flex-col"
         [routerLink]="['/home']"

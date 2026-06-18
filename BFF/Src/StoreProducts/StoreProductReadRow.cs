@@ -11,4 +11,6 @@ public sealed class StoreProductReadRow
     public CategoryEntity? Category { get; init; }
 
     public ManufacturerEntity? Manufacturer { get; init; }
+
+    public StoreLocationEntity? StoreLocation { get; init; }
 }

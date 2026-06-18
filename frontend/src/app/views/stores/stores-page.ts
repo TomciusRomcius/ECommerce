@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PagePadder } from '../../components/page-padder/page-padder';
 import StoreLocationModel from '../../models/store-location-model';
+import PageModel from '@models/page-model';
 
 @Component({
   selector: 'app-stores-page',
@@ -11,7 +12,7 @@ import StoreLocationModel from '../../models/store-location-model';
 })
 export class StoresPage {
   private readonly activatedRoute = inject(ActivatedRoute);
-  storeLocations = signal<StoreLocationModel[]>([]);
+  storeLocations = signal<PageModel<StoreLocationModel>>(this.activatedRoute.snapshot.data['storeLocations']);
 
   constructor() {
     this.activatedRoute.data.subscribe(({ storeLocations }) => {

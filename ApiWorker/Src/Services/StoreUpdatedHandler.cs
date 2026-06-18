@@ -10,17 +10,17 @@ public sealed class StoreUpdatedHandler(
 {
     public async Task HandleAsync(StoreUpdatedEvent ev, CancellationToken cancellationToken)
     {
-        int rowsUpdated = await readDbContext.StoreProducts
-            .Where(storeProduct => storeProduct.StoreLocationId == ev.StoreLocationId)
+        int rowsUpdated = await readDbContext.StoreLocations
+            .Where(storeLocation => storeLocation.StoreLocationId == ev.StoreLocationId)
             .ExecuteUpdateAsync(
                 setters => setters
-                    .SetProperty(storeProduct => storeProduct.StoreDisplayName, ev.DisplayName)
-                    .SetProperty(storeProduct => storeProduct.StoreAddress, ev.Address),
+                    .SetProperty(storeLocation => storeLocation.DisplayName, ev.DisplayName)
+                    .SetProperty(storeLocation => storeLocation.Address, ev.Address),
                 cancellationToken);
 
         logger.LogInformation(
-            "Updated store metadata on {RowsUpdated} store products for store location {StoreLocationId}",
-            rowsUpdated,
-            ev.StoreLocationId);
+            "Updated store location {StoreLocationId} in read model; rows affected: {RowsUpdated}",
+            ev.StoreLocationId,
+            rowsUpdated);
     }
 }
