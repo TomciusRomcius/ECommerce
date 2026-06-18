@@ -5,6 +5,7 @@ export default interface ProductModel {
   name: string;
   description: string;
   price: number;
+  stock: number;
   manufacturerId: number;
   manufacturerName: string;
   categoryId: number;

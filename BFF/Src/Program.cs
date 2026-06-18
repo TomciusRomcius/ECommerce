@@ -53,6 +53,7 @@ builder.Services.AddOptions<S3Configuration>()
     .Bind(builder.Configuration.GetSection(S3Configuration.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+builder.Services.AddScoped<StoreProductImageUrlsMappingAction>();
 builder.Services.AddSingleton<IS3ImageUrlBuilder, S3ImageUrlBuilder>();
 builder.Services.AddApplicationAuth(builder);
 builder.Services.AddSingleton<IAmazonS3>(sp =>

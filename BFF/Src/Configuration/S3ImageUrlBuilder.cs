@@ -7,7 +7,7 @@ public interface IS3ImageUrlBuilder
     IReadOnlyList<string> BuildUrls(IEnumerable<string> s3Keys);
 }
 
-public class S3ImageUrlBuilder(IOptions<S3Configuration> options) : IS3ImageUrlBuilder
+public sealed class S3ImageUrlBuilder(IOptions<S3Configuration> options) : IS3ImageUrlBuilder
 {
     public IReadOnlyList<string> BuildUrls(IEnumerable<string> s3Keys)
     {

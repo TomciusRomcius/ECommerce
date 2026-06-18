@@ -1,17 +1,15 @@
 using AutoMapper;
 using BFF.ReadDb.Entities;
+using BFF.StoreLocations;
+using BFF.StoreProducts;
 
-namespace BFF.StoreProducts;
+namespace BFF.Configuration;
 
 public class StoreProductsMappingProfile : Profile
 {
     public StoreProductsMappingProfile()
     {
-        CreateMap<StoreProductReadRow, StoreProductStoreDto>()
-            .ForMember(dest => dest.StoreLocationId, opt => opt.MapFrom(src => src.StoreProduct.StoreLocationId))
-            .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.StoreProduct.Stock))
-            .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.StoreLocation != null ? src.StoreLocation.DisplayName : string.Empty))
-            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.StoreLocation != null ? src.StoreLocation.Address : string.Empty));
+        CreateMap<StoreLocationEntity, StoreLocationDto>();
 
         CreateMap<StoreProductReadRow, StoreProductDto>()
             .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.StoreProduct.ProductId))
@@ -22,7 +20,9 @@ public class StoreProductsMappingProfile : Profile
             .ForMember(dest => dest.ManufacturerName, opt => opt.MapFrom(src => src.Manufacturer != null ? src.Manufacturer.Name : string.Empty))
             .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Product != null ? src.Product.CategoryId : 0))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
-            .ForMember(dest => dest.Store, opt => opt.MapFrom(src => src))
-            .ForMember(dest => dest.ImageUrls, opt => opt.Ignore());
+            .ForMember(dest => dest.Store, opt => opt.MapFrom(src => src.StoreLocation))
+            .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.StoreProduct.Stock))
+            .ForMember(dest => dest.ImageUrls, opt => opt.Ignore())
+                .AfterMap<StoreProductImageUrlsMappingAction>();
     }
 }

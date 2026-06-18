@@ -55,7 +55,7 @@ export class Store {
       data: {
         storeLocationId,
         productId: product.productId,
-        initialStock: product.store?.stock ?? 0,
+        initialStock: product.stock ?? 0,
       },
     });
   }

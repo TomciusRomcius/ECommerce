@@ -1,4 +1,4 @@
-using System.Text.Json;
+using BFF.StoreLocations;
 
 namespace BFF.StoreProducts;
 
@@ -9,17 +9,10 @@ public class StoreProductDto
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int ManufacturerId { get; set; }
+    public int Stock { get; set; }
     public string ManufacturerName { get; set; } = string.Empty;
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
-    public StoreProductStoreDto? Store { get; set; }
+    public StoreLocationDto? Store { get; set; }
     public List<string> ImageUrls { get; set; } = [];
-}
-
-public class StoreProductStoreDto
-{
-    public int StoreLocationId { get; set; }
-    public int Stock { get; set; }
-    public string DisplayName { get; set; } = string.Empty;
-    public string Address { get; set; } = string.Empty;
 }
