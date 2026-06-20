@@ -126,8 +126,7 @@ public class StoreProductsService(
             join manufacturer in readDbContext.Manufacturers.AsNoTracking()
                 on product.ManufacturerId equals manufacturer.ManufacturerId
             join storeLocation in readDbContext.StoreLocations.AsNoTracking()
-                on storeProduct.StoreLocationId equals storeLocation.StoreLocationId into storeLocations
-            from storeLocation in storeLocations.DefaultIfEmpty()
+                on storeProduct.StoreLocationId equals storeLocation.StoreLocationId
             join image in readDbContext.ProductImages.AsNoTracking()
                 on product.ProductId equals image.ProductId
             group new { storeProduct, product, storeLocation, manufacturer, category, image } by storeProduct.ProductId into g
@@ -138,9 +137,9 @@ public class StoreProductsService(
                 StoreLocation = g.First().storeLocation,
                 Manufacturer = g.First().manufacturer,
                 Category = g.First().category,
-                Images = g.Select(x => x.image).ToList(),
+                Images = g.Select(x => x.image),
             }
-            ).ToListAsync();
+            ).AsSplitQuery().ToListAsync();
 
             logger.LogDebug("Fetched {Count} products with joined data from ReadDB. Data: {@Products}", products.Count, products);
             

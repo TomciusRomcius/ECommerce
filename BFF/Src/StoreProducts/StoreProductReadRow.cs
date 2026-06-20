@@ -14,5 +14,5 @@ public sealed class StoreProductReadRow
 
     public required StoreLocationEntity? StoreLocation { get; init; }
 
-    public required List<ProductImageReadEntity> Images { get; init; } = [];
+    public required IEnumerable<ProductImageReadEntity> Images { get; init; } = [];
 }
