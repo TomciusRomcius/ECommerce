@@ -21,6 +21,9 @@ export const productResolver: ResolveFn<PageModel<ProductModel>> = (
     params['storeLocationId'] = storeLocationId;
   }
 
+  params['orderBy'] = route.queryParamMap.get('orderBy') ?? 'name';
+  params['orderType'] = route.queryParamMap.get('orderType') ?? 'asc';
+
   return unwrapApiResponse(
     httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
       params,

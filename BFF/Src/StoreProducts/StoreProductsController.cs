@@ -18,56 +18,34 @@ public class StoreProductsController(
     [HttpGet]
     public async Task<IActionResult> GetProducts(
         [FromQuery] int? storeLocationId,
-        [FromQuery] int pageNumber = 0,
+        [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
+        [FromQuery] string orderBy = "name",
+        [FromQuery] string orderType = OrderType.Ascending,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            Page<StoreProductDto> page = await storeProductsService.GetProductsAsync(
-                storeLocationId,
-                pageNumber,
-                pageSize,
-                cancellationToken);
+        Page<StoreProductDto> page = await storeProductsService.GetProductsAsync(
+            storeLocationId,
+            pageNumber,
+            pageSize,
+            orderBy,
+            orderType,
+            cancellationToken);
 
-            return Ok(new { data = page });
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogWarning(ex, "Failed to fetch products (storeLocationId={StoreLocationId}).", storeLocationId);
-            return StatusCode(StatusCodes.Status502BadGateway, new { error = "Failed to fetch products." });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to read products from ReadDB (storeLocationId={StoreLocationId}).", storeLocationId);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Failed to fetch products." });
-        }
+        return Ok(new { data = page });
     }
 
     [HttpGet("{productId:int}")]
     public async Task<IActionResult> GetProduct(int productId, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            StoreProductDto? product = await storeProductsService.GetProductByIdAsync(productId, cancellationToken);
+        StoreProductDto? product = await storeProductsService.GetProductByIdAsync(productId, cancellationToken);
 
-            if (product is null)
-            {
-                return NotFound();
-            }
+        if (product is null)
+        {
+            return NotFound();
+        }
 
-            return Ok(new { data = product });
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogWarning(ex, "Failed to fetch product {ProductId}.", productId);
-            return StatusCode(StatusCodes.Status502BadGateway, new { error = "Failed to fetch product." });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to read product {ProductId} from ReadDB.", productId);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Failed to fetch product." });
-        }
+        return Ok(new { data = product });
     }
 
     [HttpPut]

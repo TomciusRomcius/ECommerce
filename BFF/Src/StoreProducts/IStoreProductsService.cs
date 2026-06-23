@@ -8,6 +8,8 @@ public interface IStoreProductsService
         int? storeLocationId,
         int pageNumber,
         int pageSize,
+        string orderBy,
+        string orderType,
         CancellationToken cancellationToken = default);
 
     Task<StoreProductDto?> GetProductByIdAsync(int productId, CancellationToken cancellationToken = default);

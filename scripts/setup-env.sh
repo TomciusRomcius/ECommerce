@@ -114,7 +114,7 @@ addJwtEnvs "OrderService"
 addMicroserviceUrls "OrderService"
 
 # Api worker
-echo "Database__Host=api-read-db" > ../ApiWorker/.env
+echo "Database__Host=read-db" > ../ApiWorker/.env
 echo "Database__Port=5432" >> ../ApiWorker/.env
 echo "Database__Database=read_db" >> ../ApiWorker/.env
 echo "Database__Username=postgres" >> ../ApiWorker/.env

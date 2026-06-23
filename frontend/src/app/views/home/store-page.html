@@ -1,68 +1,78 @@
 <app-page-padder>
   <header class="mb-6">
     @if (isStoreFiltered()) {
-      <a routerLink="/home" class="text-sm text-gray-600 hover:underline">← All products</a>
-      <h1 class="mt-2 text-2xl font-semibold">{{ storeHeading() }}</h1>
-      @if (storeAddress()) {
-        <p class="mt-1 text-sm text-gray-500">{{ storeAddress() }}</p>
-      }
-    } @else {
-      <h1 class="text-2xl font-semibold">All products</h1>
-      <p class="mt-1 text-sm text-gray-500">Products available across all stores</p>
+    <a routerLink="/home" class="text-sm text-gray-600 hover:underline">← All products</a>
+    <h1 class="mt-2 text-2xl font-semibold">{{ storeHeading() }}</h1>
+    @if (storeAddress()) {
+    <p class="mt-1 text-sm text-gray-500">{{ storeAddress() }}</p>
     }
+    } @else {
+    <h1 class="text-2xl font-semibold">All products</h1>
+    <p class="mt-1 text-sm text-gray-500">Products available across all stores</p>
+    }
+
+    <mat-form-field>
+      <mat-label>
+        <mat-icon fontIcon="sort"></mat-icon>
+        Sort products by
+      </mat-label>
+      <mat-select [value]="orderBy()" (selectionChange)="onSelectOrderBy($event.value)" required>
+        <mat-option value="name">Name</mat-option>
+        <mat-option value="price">Price</mat-option>
+        <mat-option value="storeLocationId">Store</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>
+        <mat-icon fontIcon="sort"></mat-icon>
+        Order type
+      </mat-label>
+      <mat-select [value]="orderType()" (selectionChange)="onSelectOrderType($event.value)" required>
+        <mat-option value="asc">A to Z</mat-option>
+        <mat-option value="desc">Z to A</mat-option>
+      </mat-select>
+    </mat-form-field>
   </header>
 
   <div class="grid grid-cols-3 gap-4">
     @for (product of products().data; track $index) {
-      <mat-card class="flex h-full flex-col">
-        <div
-          class="flex aspect-4/3 items-center justify-center overflow-hidden bg-gray-100"
-          aria-hidden="true"
-        >
-          @if (product.imageUrls.length > 0) {
-            <img
-              [src]="product.imageUrls[0]"
-              [alt]="product.name"
-              class="h-full w-full object-cover"
-            />
-          } @else {
-            <span class="text-sm text-gray-400">No image</span>
-          }
-        </div>
-        <mat-card-header>
-          <mat-card-title>{{ product.name }}</mat-card-title>
-          <mat-card-subtitle>{{ product.manufacturerName }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="flex flex-1 flex-col gap-2">
-          <p class="text-sm text-gray-600 line-clamp-2">{{ product.description }}</p>
-          <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
-          @if (!isStoreFiltered() && product.store) {
-            <p class="text-xs text-gray-500">
-              {{ product.store.displayName }} · {{ product.stock }} in stock
-            </p>
-          }
-          @if (isStoreFiltered() && product.store) {
-            <p class="text-xs text-gray-500">{{ product.stock }} in stock</p>
-          }
-          <p class="font-semibold">{{ product.price | currency }}</p>
-          <a
-            mat-flat-button
-            color="primary"
-            class="mt-auto"
-            [routerLink]="['/product', product.productId]"
-          >
-            View product
-          </a>
-        </mat-card-content>
-      </mat-card>
+    <mat-card class="flex h-full flex-col">
+      <div class="flex aspect-4/3 items-center justify-center overflow-hidden bg-gray-100" aria-hidden="true">
+        @if (product.imageUrls.length > 0) {
+        <img [src]="product.imageUrls[0]" [alt]="product.name" class="h-full w-full object-cover" />
+        } @else {
+        <span class="text-sm text-gray-400">No image</span>
+        }
+      </div>
+      <mat-card-header>
+        <mat-card-title>{{ product.name }}</mat-card-title>
+        <mat-card-subtitle>{{ product.manufacturerName }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="flex flex-1 flex-col gap-2">
+        <p class="text-sm text-gray-600 line-clamp-2">{{ product.description }}</p>
+        <p class="text-xs text-gray-500">{{ product.categoryName }}</p>
+        @if (!isStoreFiltered() && product.store) {
+        <p class="text-xs text-gray-500">
+          {{ product.store.displayName }} · {{ product.stock }} in stock
+        </p>
+        }
+        @if (isStoreFiltered() && product.store) {
+        <p class="text-xs text-gray-500">{{ product.stock }} in stock</p>
+        }
+        <p class="font-semibold">{{ product.price | currency }}</p>
+        <a mat-flat-button color="primary" class="mt-auto" [routerLink]="['/product', product.productId]">
+          View product
+        </a>
+      </mat-card-content>
+    </mat-card>
     }
 
   </div>
   @if (products().data.length > 0) {
-    <app-paginator class="mt-8" [data]="products()"></app-paginator>
+  <app-paginator class="mt-8" [data]="products()"></app-paginator>
   }
 
   @else {
-    <p class="col-span-3 text-sm text-gray-500">No products found.</p>
+  <p class="col-span-3 text-sm text-gray-500">No products found.</p>
   }
 </app-page-padder>

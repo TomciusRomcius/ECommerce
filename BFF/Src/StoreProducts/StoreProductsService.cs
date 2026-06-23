@@ -22,35 +22,84 @@ public class StoreProductsService(
         int? storeLocationId,
         int pageNumber,
         int pageSize,
+        string orderBy,
+        string orderType,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<StoreProductReadEntity> storeProductsQuery = readDbContext.StoreProducts.AsNoTracking();
+        IQueryable<StoreProductReadEntity> query = readDbContext.StoreProducts.AsNoTracking();
 
         if (storeLocationId is not null)
         {
-            storeProductsQuery = storeProductsQuery
+            query = query
                 .Where(product => product.StoreLocationId == storeLocationId.Value);
         }
 
-        storeProductsQuery = storeProductsQuery
-            .OrderBy(storeProduct => storeProduct.StoreLocationId);
-        int totalCount = await storeProductsQuery.CountAsync(cancellationToken);
+        var joinedQuery = query
+            .Join(readDbContext.Products.AsNoTracking(),
+                storeProduct => storeProduct.ProductId,
+                product => product.ProductId,
+                (storeProduct, product) => new { storeProduct, product })
+            .Join(readDbContext.Categories.AsNoTracking(),
+                sp => sp.product.CategoryId,
+                category => category.CategoryId,
+                (sp, category) => new { sp.storeProduct, sp.product, category })
+            .Join(readDbContext.Manufacturers.AsNoTracking(),
+                sp => sp.product.ManufacturerId,
+                manufacturer => manufacturer.ManufacturerId,
+                (sp, manufacturer) => new { sp.storeProduct, sp.product, sp.category, manufacturer })
+            .Join(readDbContext.StoreLocations.AsNoTracking(),
+                sp => sp.storeProduct.StoreLocationId,
+                storeLocation => storeLocation.StoreLocationId,
+                (sp, storeLocation) => new { sp.storeProduct, sp.product, sp.category, sp.manufacturer, storeLocation });
 
-        storeProductsQuery = storeProductsQuery
+        int totalCount = await query.CountAsync(cancellationToken);
+        var orderedQuery = orderBy.ToLower() switch
+        {
+            "name" => orderType == OrderType.Ascending
+                ? joinedQuery.OrderBy(row => row.product.Name)
+                : joinedQuery.OrderByDescending(row => row.product.Name),
+            "price" => orderType == OrderType.Ascending
+                ? joinedQuery.OrderBy(row => row.product.Price)
+                : joinedQuery.OrderByDescending(row => row.product.Price),
+            "stock" => orderType == OrderType.Ascending
+                ? joinedQuery.OrderBy(row => row.storeProduct.Stock)
+                : joinedQuery.OrderByDescending(row => row.storeProduct.Stock),
+            "storelocation" => orderType == OrderType.Ascending
+                ? joinedQuery.OrderBy(row => row.storeLocation.DisplayName)
+                : joinedQuery.OrderByDescending(row => row.storeLocation.DisplayName),
+            _ => joinedQuery.OrderBy(row => row.product.ProductId),
+        };
+
+        joinedQuery = orderedQuery
+            .ThenBy(x => x.product.ProductId)
+            .ThenBy(x => x.storeProduct.StoreLocationId);
+
+        var resultQuery = joinedQuery
+            .Select(g => new StoreProductReadRow
+            {
+                StoreProduct = g.storeProduct,
+                Product = g.product,
+                StoreLocation = g.storeLocation,
+                Manufacturer = g.manufacturer,
+                Category = g.category,
+                Images = readDbContext.ProductImages
+                    .Where(image => image.ProductId == g.product.ProductId)
+                    .ToList()
+            });
+        
+        resultQuery = resultQuery
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize);
 
-        List<StoreProductDto> rows = await QueryJoinedProductsAsync(
-            storeProductsQuery,
-            cancellationToken);
+        var fetchedProducts = await resultQuery.ToListAsync(cancellationToken);
 
-        int fetchedCount = (pageNumber * pageSize) + rows.Count;
+        int fetchedCount = (pageNumber * pageSize) + fetchedProducts.Count;
         return new Page<StoreProductDto>
         {
-            Data = rows,
+            Data = fetchedProducts.Select(row => mapper.Map<StoreProductDto>(row)).ToList(),
             TotalCount = totalCount,
             HasNextPage = fetchedCount < totalCount,
-            HasPrevPage = pageNumber > 0,
+            HasPrevPage = pageNumber > 1,
             PageSize = pageSize,
         };
     }
@@ -59,15 +108,29 @@ public class StoreProductsService(
         int productId,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<StoreProductReadEntity> storeProductQuery = readDbContext.StoreProducts
+        var query = readDbContext.StoreProducts
             .AsNoTracking()
-            .Where(storeProduct => storeProduct.ProductId == productId);
+            .Where(storeProduct => storeProduct.ProductId == productId)
+            .Join(readDbContext.Products.AsNoTracking(),
+                storeProduct => storeProduct.ProductId,
+                product => product.ProductId,
+                (storeProduct, product) => new { storeProduct, product })
+            .Join(readDbContext.Categories.AsNoTracking(),
+                sp => sp.product.CategoryId,
+                category => category.CategoryId,
+                (sp, category) => new { sp.storeProduct, sp.product, category })
+            .Join(readDbContext.Manufacturers.AsNoTracking(),
+                sp => sp.product.ManufacturerId,
+                manufacturer => manufacturer.ManufacturerId,
+                (sp, manufacturer) => new { sp.storeProduct, sp.product, sp.category, manufacturer })
+            .Join(readDbContext.StoreLocations.AsNoTracking(),
+                sp => sp.storeProduct.StoreLocationId,
+                storeLocation => storeLocation.StoreLocationId,
+                (sp, storeLocation) => new { sp.storeProduct, sp.product, sp.category, sp.manufacturer, storeLocation });
 
-        List<StoreProductDto> rows = await QueryJoinedProductsAsync(
-            storeProductQuery,
-            cancellationToken);
+        var fetchedProducts = await query.FirstOrDefaultAsync(cancellationToken);
 
-        return rows.FirstOrDefault();
+        return mapper.Map<StoreProductDto>(fetchedProducts);
     }
 
     public async Task<HttpResponseMessage> UpdateProductStockAsync(
@@ -112,37 +175,5 @@ public class StoreProductsService(
         });
 
         return await _httpClient.SendAsync(request, cancellationToken);
-    }
-
-    private async Task<List<StoreProductDto>> QueryJoinedProductsAsync(
-        IQueryable<StoreProductReadEntity> query,
-        CancellationToken cancellationToken)
-    {
-        var products = await (from storeProduct in query
-            join product in readDbContext.Products.AsNoTracking()
-                on storeProduct.ProductId equals product.ProductId
-            join category in readDbContext.Categories.AsNoTracking()
-                on product.CategoryId equals category.CategoryId
-            join manufacturer in readDbContext.Manufacturers.AsNoTracking()
-                on product.ManufacturerId equals manufacturer.ManufacturerId
-            join storeLocation in readDbContext.StoreLocations.AsNoTracking()
-                on storeProduct.StoreLocationId equals storeLocation.StoreLocationId
-            join image in readDbContext.ProductImages.AsNoTracking()
-                on product.ProductId equals image.ProductId
-            group new { storeProduct, product, storeLocation, manufacturer, category, image } by storeProduct.ProductId into g
-            select new StoreProductReadRow
-            {
-                StoreProduct = g.First().storeProduct,
-                Product = g.First().product,
-                StoreLocation = g.First().storeLocation,
-                Manufacturer = g.First().manufacturer,
-                Category = g.First().category,
-                Images = g.Select(x => x.image),
-            }
-            ).AsSplitQuery().ToListAsync();
-
-            logger.LogDebug("Fetched {Count} products with joined data from ReadDB. Data: {@Products}", products.Count, products);
-            
-        return products.Select(product => mapper.Map<StoreProductDto>(product)).ToList();
     }
 }
