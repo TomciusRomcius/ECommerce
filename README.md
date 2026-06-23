@@ -6,6 +6,14 @@ checkout, and Docker Compose–based local orchestration.
 ## Architecture (currently no full K8 implementation, just Docker Compose)
 ![Architecture](./docs/images/architecture.jpg)
 
+## Frontend
+<p float="left">
+  <img src="./docs/images/adminPagePreview.png" width="500" alt="Admin page preview" />
+  <img src="./docs/images/cartPagePreview.png" width="500" alt="Cart page preview" />
+  <img src="./docs/images/homePagePreview.png" width="500" alt="Home page preview" />
+  <img src="./docs/images/stripeExample.png" width="500" alt="Stripe example" />
+</p>
+
 ## Tech stack
 * Frontend: Angular + Angular Material.
 * Backend: ASP.NET Core(.NET 9).
