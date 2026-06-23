@@ -126,7 +126,18 @@ public class StoreProductsService(
             .Join(readDbContext.StoreLocations.AsNoTracking(),
                 sp => sp.storeProduct.StoreLocationId,
                 storeLocation => storeLocation.StoreLocationId,
-                (sp, storeLocation) => new { sp.storeProduct, sp.product, sp.category, sp.manufacturer, storeLocation });
+                (sp, storeLocation) => new { sp.storeProduct, sp.product, sp.category, sp.manufacturer, storeLocation })
+            .Select(g => new StoreProductReadRow
+            {
+                StoreProduct = g.storeProduct,
+                Product = g.product,
+                StoreLocation = g.storeLocation,
+                Manufacturer = g.manufacturer,
+                Category = g.category,
+                Images = readDbContext.ProductImages
+                    .Where(image => image.ProductId == g.product.ProductId)
+                    .ToList()
+            });
 
         var fetchedProducts = await query.FirstOrDefaultAsync(cancellationToken);
 
