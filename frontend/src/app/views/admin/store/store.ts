@@ -11,10 +11,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditStock } from './components/edit-stock/edit-stock';
 import { AddProductToStore } from './components/add-product-to-store/add-product-to-store';
 import { SearchBar } from "@components/search-bar/search-bar";
+import { ItemSorter, OrderColumn, OrderType } from "@components/item-sorter/item-sorter";
 
 @Component({
   selector: 'app-store',
-  imports: [CurrencyPipe, MatButtonModule, MatTableModule, Paginator, RouterLink, SearchBar],
+  imports: [CurrencyPipe, MatButtonModule, MatTableModule, Paginator, RouterLink, SearchBar, ItemSorter],
   templateUrl: './store.html',
   styleUrl: './store.css',
 })
@@ -28,6 +29,13 @@ export class Store {
     this.route.snapshot.data['products'] ?? emptyPage(),
   );
   columnsToDisplay = ['name', 'price', 'stock', 'actions'];
+  sortingFields: OrderColumn[] = [
+    { apiColumn: 'name', displayText: 'Name' },
+    { apiColumn: 'price', displayText: 'Price' },
+    { apiColumn: 'stock', displayText: 'Stock' },
+  ];
+  defaultSortingColumn = this.sortingFields[0];
+  defaultOrderType: OrderType = 'asc';
   private dialog = inject(MatDialog);
 
   constructor() {

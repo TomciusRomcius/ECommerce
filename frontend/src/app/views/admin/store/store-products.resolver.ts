@@ -18,6 +18,8 @@ export const storeProductsResolver: ResolveFn<PageModel<ProductModel>> = (
   if (!storeLocationId)
     throw new Error("Store location id is not defined!");
   const params: Record<string, string> = { storeLocationId, pageNumber, searchText };
+  params['orderBy'] = route.queryParamMap.get('orderBy') ?? 'name';
+  params['orderType'] = route.queryParamMap.get('orderType') ?? 'asc';
 
   return unwrapApiResponse(
     httpClient.get<ApiResponse<PageModel<ProductModel>>>(`${environment.backendApi}/storeproducts`, {
