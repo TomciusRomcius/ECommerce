@@ -35,5 +35,9 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<OrderEntity>()
             .Property(x => x.CreatedAt)
             .HasDefaultValueSql("now()");
+
+        modelBuilder.Entity<OrderEntity>()
+            .HasIndex(x => x.OrderState)
+            .IsUnique();
     }
 }
