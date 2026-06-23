@@ -12,10 +12,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { ItemSorter, OrderColumn, OrderType } from "@components/item-sorter/item-sorter";
 
 @Component({
   selector: 'app-home',
-  imports: [CurrencyPipe, MatButtonModule, MatCardModule, MatInputModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, PagePadder, RouterLink, Paginator],
+  imports: [CurrencyPipe, MatButtonModule, MatCardModule, MatInputModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, PagePadder, RouterLink, Paginator, ItemSorter],
   templateUrl: './home-page.html',
 })
 export class HomePage {
@@ -24,8 +25,14 @@ export class HomePage {
 
   products = signal<PageModel<ProductModel>>(emptyPage());
   storeLocationId = signal<number | null>(null);
-  orderBy = signal<string>('name');
-  orderType = signal<string>('asc');
+  sortingFields: OrderColumn[] = [
+    { apiColumn: 'price', displayText: 'Price' },
+    { apiColumn: 'name', displayText: 'Name' },
+    { apiColumn: 'stock', displayText: 'Stock' },
+    { apiColumn: 'storelocation', displayText: 'Store Location' }
+  ];
+  defaultSortingColumn = this.sortingFields[0];
+  defaultOrderType: OrderType = 'asc';
 
   isStoreFiltered = computed(() => this.storeLocationId() !== null);
 
@@ -49,26 +56,10 @@ export class HomePage {
     this.activatedRoute.queryParamMap.subscribe((params) => {
       const id = params.get('storeLocationId');
       this.storeLocationId.set(id ? Number(id) : null);
-      this.orderBy.set(params.get('orderBy') ?? 'name');
-      this.orderType.set(params.get('orderType') ?? 'asc');
     });
 
     this.activatedRoute.data.subscribe(({ products }) => {
       this.products.set(products);
-    });
-  }
-
-  onSelectOrderBy(value: string): void {
-    this.router.navigate([], {
-      queryParams: { orderBy: value, pageNumber: 1 },
-      queryParamsHandling: 'merge',
-    });
-  }
-
-  onSelectOrderType(value: string): void {
-    this.router.navigate([], {
-      queryParams: { orderType: value, pageNumber: 1 },
-      queryParamsHandling: 'merge',
     });
   }
 }

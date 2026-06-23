@@ -1,0 +1,21 @@
+<mat-form-field>
+  <mat-label>
+    <mat-icon fontIcon="sort"></mat-icon>
+    Sort products by
+  </mat-label>
+  <mat-select [value]="orderBy()" (selectionChange)="setOrderBy($event.value)" required>
+    @for (field of fields(); track $index) {
+      <mat-option [value]="field">{{ field.displayText }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+<mat-form-field>
+  <mat-label>
+    <mat-icon fontIcon="sort"></mat-icon>
+    Order type
+  </mat-label>
+  <mat-select [value]="orderType()" (selectionChange)="setOrderType($event.value)" required>
+      <mat-option value="asc">Ascending</mat-option>
+      <mat-option value="desc">Descending</mat-option>
+  </mat-select>
+</mat-form-field>

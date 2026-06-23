@@ -11,27 +11,7 @@
     <p class="mt-1 text-sm text-gray-500">Products available across all stores</p>
     }
 
-    <mat-form-field>
-      <mat-label>
-        <mat-icon fontIcon="sort"></mat-icon>
-        Sort products by
-      </mat-label>
-      <mat-select [value]="orderBy()" (selectionChange)="onSelectOrderBy($event.value)" required>
-        <mat-option value="name">Name</mat-option>
-        <mat-option value="price">Price</mat-option>
-        <mat-option value="storeLocationId">Store</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>
-        <mat-icon fontIcon="sort"></mat-icon>
-        Order type
-      </mat-label>
-      <mat-select [value]="orderType()" (selectionChange)="onSelectOrderType($event.value)" required>
-        <mat-option value="asc">A to Z</mat-option>
-        <mat-option value="desc">Z to A</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <app-item-sorter [fields]="sortingFields" [defaultOrderColumn]="defaultSortingColumn" [defaultOrderType]="defaultOrderType" /> 
   </header>
 
   <div class="grid grid-cols-3 gap-4">
