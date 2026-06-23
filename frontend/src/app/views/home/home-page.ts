@@ -16,9 +16,9 @@ import { MatInputModule } from '@angular/material/input';
 @Component({
   selector: 'app-home',
   imports: [CurrencyPipe, MatButtonModule, MatCardModule, MatInputModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, PagePadder, RouterLink, Paginator],
-  templateUrl: './store-page.html',
+  templateUrl: './home-page.html',
 })
-export class StorePage {
+export class HomePage {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
