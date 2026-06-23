@@ -1,9 +1,8 @@
-namespace BFF.Order;
+namespace BFF.OrderFlow;
 
-public interface IOrderPaymentSessionService
+public interface IOrderFlowService
 {
     Task<HttpResponseMessage> CreateOrderPaymentSessionAsync(
-        bool testCharge,
         string? authorizationHeader,
         CancellationToken cancellationToken = default);
 }

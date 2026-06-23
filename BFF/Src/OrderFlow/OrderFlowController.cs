@@ -2,33 +2,28 @@ using BFF.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BFF.Order;
+namespace BFF.OrderFlow;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderController(IOrderPaymentSessionService orderPaymentSessionService, ILogger<OrderController> logger)
+public class OrderFlowController(IOrderFlowService orderFlowService, ILogger<OrderFlowController> logger)
     : ControllerBase
 {
     [HttpPost("session")]
     [Authorize]
-    public async Task<IActionResult> CreateOrderPaymentSession(
-        [FromQuery(Name = "testcharge")] bool testCharge,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateOrderPaymentSession(CancellationToken cancellationToken)
     {
         string authorizationHeader = Request.Headers.Authorization.ToString();
 
         using HttpResponseMessage response =
-            await orderPaymentSessionService.CreateOrderPaymentSessionAsync(
-                testCharge,
-                authorizationHeader,
-                cancellationToken);
+            await orderFlowService.CreateOrderPaymentSessionAsync(authorizationHeader, cancellationToken);
 
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
             logger.LogWarning(
-                "Create order payment session failed with status {StatusCode}: {Body}",
+                "Order flow session creation failed with status {StatusCode}: {Body}",
                 response.StatusCode,
                 body);
         }

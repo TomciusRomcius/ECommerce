@@ -2,7 +2,7 @@ using Amazon.S3;
 using BFF.Auth;
 using BFF.Cart;
 using BFF.Configuration;
-using BFF.Order;
+using BFF.OrderFlow;
 using BFF.Products;
 using BFF.ReadDb;
 using BFF.StoreProducts;
@@ -37,7 +37,7 @@ builder.Services.AddOptions<KeycloakAuthOptions>()
     .ValidateOnStart();
 builder.Services.AddHttpClient<IKeycloakTokenService, KeycloakTokenService>();
 builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddHttpClient<IOrderPaymentSessionService, OrderPaymentSessionService>();
+builder.Services.AddHttpClient<IOrderFlowService, OrderFlowService>();
 builder.Services.AddScoped<IStoreProductsService, StoreProductsService>();
 builder.Services.AddHttpClient<IProductService, ProductService>();
 builder.Services.AddOptions<PostgresConfiguration>()
@@ -78,6 +78,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseApplicationAuth();
 app.MapControllers();
 
 app.Run();
