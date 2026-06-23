@@ -1,4 +1,4 @@
-using System.Text.Json;
+using BFF.StoreProducts;
 
 namespace BFF.Cart;
 
@@ -8,5 +8,5 @@ public class CartItemWithProductDto
     public int ProductId { get; set; }
     public int StoreLocationId { get; set; }
     public int Quantity { get; set; }
-    public JsonElement? Product { get; set; }
+    public StoreProductDto? Product { get; set; }
 }

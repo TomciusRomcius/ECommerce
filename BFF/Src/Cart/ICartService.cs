@@ -3,7 +3,7 @@ namespace BFF.Cart;
 public interface ICartService
 {
     Task<IReadOnlyList<CartItemWithProductDto>> GetItemsWithProductsAsync(
-        string? authorizationHeader,
+        string userId,
         CancellationToken cancellationToken = default);
 
     Task<HttpResponseMessage> AddItemAsync(

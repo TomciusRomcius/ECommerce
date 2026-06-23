@@ -1,6 +1,11 @@
+using ECommerceBackend.EventTypes;
+using ECommerceBackend.Utils;
+using EventSystemHelper.Kafka.Services;
+using EventSystemHelper.Kafka.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using UserService.Application.Persistence;
 using UserService.Application.UseCases.Cart.Commands;
 using UserService.Domain.Utils;
@@ -11,11 +16,16 @@ public class RemoveItemFromCartHandler : IRequestHandler<RemoveItemFromCartComma
 {
     private readonly DatabaseContext _context;
     private readonly ILogger<RemoveItemFromCartHandler> _logger;
+    private readonly KafkaConfiguration _kafkaConfiguration;
 
-    public RemoveItemFromCartHandler(ILogger<RemoveItemFromCartHandler> logger, DatabaseContext context)
+    public RemoveItemFromCartHandler(
+        ILogger<RemoveItemFromCartHandler> logger,
+        DatabaseContext context,
+        IOptions<KafkaConfiguration> kafkaConfiguration)
     {
         _logger = logger;
         _context = context;
+        _kafkaConfiguration = kafkaConfiguration.Value;
     }
 
     public async Task<ResultError?> Handle(RemoveItemFromCartCommand request, CancellationToken cancellationToken)
@@ -43,6 +53,16 @@ public class RemoveItemFromCartHandler : IRequestHandler<RemoveItemFromCartComma
                 request.StoreLocationId);
             return new ResultError(ResultErrorType.INVALID_OPERATION_ERROR, "Item not found in cart.");
         }
+
+        var kafkaEvent = new ProductRemovedFromCartEvent
+        {
+            UserId = request.UserId,
+            ProductId = request.ProductId,
+            StoreLocationId = request.StoreLocationId,
+        };
+        string sEvent = JsonUtils.Serialize(kafkaEvent);
+        await new KafkaEventProducer(_kafkaConfiguration)
+            .ProduceEventAsync("product-removed-from-cart", sEvent, cancellationToken);
 
         return null;
     }

@@ -14,6 +14,8 @@ public sealed class ReadDbContext : DbContext
         _postgresConfiguration = postgresConfiguration;
     }
 
+    public DbSet<CartProductReadEntity> CartProducts { get; set; }
+
     public DbSet<StoreProductReadEntity> StoreProducts { get; set; }
 
     public DbSet<StoreLocationEntity> StoreLocations { get; set; }
@@ -40,6 +42,22 @@ public sealed class ReadDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CartProductReadEntity>(entity =>
+        {
+            entity.HasKey(cartProduct => new
+            {
+                cartProduct.UserId,
+                cartProduct.StoreLocationId,
+                cartProduct.ProductId,
+            });
+
+            entity.Property(cartProduct => cartProduct.UserId)
+                .HasMaxLength(36)
+                .IsRequired();
+
+            entity.HasIndex(cartProduct => cartProduct.UserId);
+        });
+
         modelBuilder.Entity<StoreProductReadEntity>(entity =>
         {
             entity.HasKey(storeProduct => new { storeProduct.StoreLocationId, storeProduct.ProductId });

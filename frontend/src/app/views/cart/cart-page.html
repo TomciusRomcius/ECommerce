@@ -1,57 +1,176 @@
 <app-page-padder>
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-semibold">Cart</h1>
-    <a mat-button routerLink="/home">Continue shopping</a>
-  </div>
+  <header class="mb-8 border-b border-gray-200 pb-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-sm font-medium uppercase tracking-wide text-gray-500">Your bag</p>
+        <h1 class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">Shopping cart</h1>
+        @if (!loading() && items().length > 0) {
+          <p class="mt-2 text-sm text-gray-500">
+            {{ itemCount() }} {{ itemCount() === 1 ? 'item' : 'items' }}
+          </p>
+        }
+      </div>
+      <a mat-stroked-button routerLink="/home">Continue shopping</a>
+    </div>
+  </header>
 
   @if (loading()) {
-    <p class="text-gray-600">Loading cart...</p>
-  } @else if (error()) {
-    <p class="text-red-600">{{ error() }}</p>
-  } @else if (items().length === 0) {
-    <p class="text-gray-600">Your cart is empty.</p>
-  } @else {
     <div class="flex flex-col gap-4">
-      @for (item of items(); track $index) {
-        <mat-card class="flex flex-col gap-4 p-4 md:flex-row md:items-center">
-          <div
-            class="flex h-24 w-full shrink-0 items-center justify-center rounded-lg bg-gray-100 md:w-32"
-            aria-hidden="true"
-          >
-            <span class="text-sm text-gray-400">No image</span>
+      @for (_ of [1, 2]; track $index) {
+        <div
+          class="animate-pulse rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:flex md:items-center md:gap-6"
+        >
+          <div class="mb-4 aspect-square w-full rounded-lg bg-gray-200 md:mb-0 md:h-28 md:w-28 md:shrink-0"></div>
+          <div class="flex flex-1 flex-col gap-2">
+            <div class="h-5 w-2/3 rounded bg-gray-200"></div>
+            <div class="h-4 w-1/3 rounded bg-gray-200"></div>
+            <div class="h-4 w-full rounded bg-gray-200"></div>
+            <div class="h-5 w-20 rounded bg-gray-200"></div>
           </div>
-          <div class="flex flex-1 flex-col gap-1">
-            @if (item.product; as product) {
-              <a class="text-lg font-semibold hover:underline" [routerLink]="['/product', product.productId]">
-                {{ product.name }}
-              </a>
-              <p class="text-sm text-gray-500">
-                {{ product.manufacturerName }} · {{ product.categoryName }}
-              </p>
-              @if (product.store) {
-                <p class="text-sm text-gray-500">
-                  {{ product.store.displayName }} · {{ product.store.address }}
-                </p>
-              }
-              <p class="text-sm text-gray-600">{{ product.description }}</p>
-              <p class="font-semibold">{{ product.price | currency }}</p>
-            } @else {
-              <p class="text-lg font-semibold">Product #{{ item.productId }}</p>
-            }
-            <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
-          </div>
-          <button
-            mat-stroked-button
-            color="warn"
-            type="button"
-            [disabled]="removingProductId() === item.productId"
-            (click)="removeItem(item)"
-          >
-            Remove
-          </button>
-        </mat-card>
+        </div>
       }
-      <a mat-stroked-button routerLink="/checkout">Proceed to checkout</a>
+    </div>
+  } @else if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+      <p class="font-medium text-red-800">{{ error() }}</p>
+      <button mat-stroked-button type="button" class="mt-4" (click)="reload()">Try again</button>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-8 py-14 text-center">
+      <div class="mb-4 rounded-full bg-white p-4 shadow-sm">
+        <mat-icon class="!h-10 !w-10 text-4xl text-gray-400">shopping_cart</mat-icon>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900">Your cart is empty</h2>
+      <p class="mt-2 text-sm text-gray-500">Browse products and add items to see them here.</p>
+      <a mat-flat-button color="primary" class="mt-6" routerLink="/home">Start shopping</a>
+    </div>
+  } @else {
+    <div class="grid gap-8 lg:grid-cols-3 lg:items-start">
+      <section class="flex flex-col gap-4 lg:col-span-2" aria-label="Cart items">
+        @for (item of items(); track trackItem($index, item)) {
+          <article
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+          >
+            <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch sm:gap-5">
+              <a
+                class="relative block aspect-square w-full shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-28 sm:w-28"
+                [routerLink]="item.product ? ['/product', item.product.productId] : null"
+                [attr.tabindex]="item.product ? 0 : -1"
+              >
+                @if (item.product && item.product.imageUrls.length > 0) {
+                  <img
+                    [src]="item.product.imageUrls[0]"
+                    [alt]="item.product.name"
+                    class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                } @else {
+                  <div class="flex h-full w-full items-center justify-center">
+                    <mat-icon class="text-gray-300">image</mat-icon>
+                  </div>
+                }
+                <span
+                  class="absolute right-2 top-2 rounded-full bg-gray-900/80 px-2 py-0.5 text-xs font-medium text-white"
+                >
+                  ×{{ item.quantity }}
+                </span>
+              </a>
+
+              <div class="flex min-w-0 flex-1 flex-col gap-2">
+                @if (item.product; as product) {
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0 flex-1">
+                      <a
+                        class="text-lg font-semibold leading-snug text-gray-900 hover:text-gray-700 hover:underline"
+                        [routerLink]="['/product', product.productId]"
+                      >
+                        {{ product.name }}
+                      </a>
+                      <p class="mt-1 text-sm text-gray-500">
+                        {{ product.manufacturerName }} · {{ product.categoryName }}
+                      </p>
+                    </div>
+                    <p class="shrink-0 text-lg font-semibold text-gray-900 sm:text-right">
+                      {{ lineTotal(item) | currency }}
+                    </p>
+                  </div>
+
+                  @if (product.store) {
+                    <p class="inline-flex w-fit items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+                      <mat-icon class="!h-3.5 !w-3.5 text-sm">store</mat-icon>
+                      {{ product.store.displayName }}
+                    </p>
+                  }
+
+                  <p class="line-clamp-2 text-sm text-gray-600">{{ product.description }}</p>
+
+                  <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <p class="text-sm text-gray-500">
+                      {{ product.price | currency }} each · Qty {{ item.quantity }}
+                    </p>
+                    <button
+                      mat-stroked-button
+                      color="warn"
+                      type="button"
+                      class="!min-w-0"
+                      [disabled]="isRemoving(item)"
+                      (click)="removeItem(item)"
+                    >
+                      @if (isRemoving(item)) {
+                        Removing...
+                      } @else {
+                        Remove
+                      }
+                    </button>
+                  </div>
+                } @else {
+                  <div class="flex flex-1 flex-col justify-between gap-3">
+                    <p class="text-lg font-semibold text-gray-900">Product #{{ item.productId }}</p>
+                    <p class="text-sm text-gray-500">Qty {{ item.quantity }}</p>
+                    <button
+                      mat-stroked-button
+                      color="warn"
+                      type="button"
+                      [disabled]="isRemoving(item)"
+                      (click)="removeItem(item)"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </section>
+
+      <aside class="lg:sticky lg:top-24 lg:col-span-1">
+        <mat-card class="overflow-hidden !rounded-xl !border !border-gray-200 !shadow-sm">
+          <mat-card-header class="!pb-0">
+            <mat-card-title class="!text-lg">Order summary</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="!pt-4">
+            <dl class="flex flex-col gap-3 text-sm">
+              <div class="flex items-center justify-between text-gray-600">
+                <dt>Items ({{ itemCount() }})</dt>
+                <dd>{{ subtotal() | currency }}</dd>
+              </div>
+              <div class="flex items-center justify-between border-t border-gray-100 pt-3 text-base font-semibold text-gray-900">
+                <dt>Subtotal</dt>
+                <dd>{{ subtotal() | currency }}</dd>
+              </div>
+            </dl>
+            <p class="mt-3 text-xs text-gray-500">Taxes and shipping calculated at checkout.</p>
+            <a
+              mat-flat-button
+              color="primary"
+              class="!mt-5 !w-full"
+              routerLink="/checkout"
+            >
+              Proceed to checkout
+            </a>
+          </mat-card-content>
+        </mat-card>
+      </aside>
     </div>
   }
 </app-page-padder>

@@ -1,56 +1,83 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json;
+using AutoMapper;
+using BFF.ReadDb;
+using BFF.StoreProducts;
 using ECommerceBackend.Utils.Microservices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace BFF.Cart;
 
-public class CartService(HttpClient httpClient, IOptions<MicroserviceHosts> hosts, ILogger<CartService> logger)
-    : ICartService
+public class CartService(
+    IHttpClientFactory httpClientFactory,
+    ReadDbContext readDbContext,
+    IOptions<MicroserviceHosts> hosts,
+    IMapper mapper) : ICartService
 {
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+
     public async Task<IReadOnlyList<CartItemWithProductDto>> GetItemsWithProductsAsync(
-        string? authorizationHeader,
+        string userId,
         CancellationToken cancellationToken = default)
     {
-        string cartUrl = $"{hosts.Value.UserServiceUrl}/cart";
-        using HttpRequestMessage cartRequest = CreateAuthorizedRequest(HttpMethod.Get, cartUrl, authorizationHeader);
-        using HttpResponseMessage cartResponse = await httpClient.SendAsync(cartRequest, cancellationToken);
-        cartResponse.EnsureSuccessStatusCode();
-
-        List<CartProductDto>? cartItems =
-            await cartResponse.Content.ReadFromJsonAsync<List<CartProductDto>>(cancellationToken);
-
-        if (cartItems is null || cartItems.Count == 0)
-        {
-            return [];
-        }
-
-        var query = new QueryString();
-        foreach (int productId in cartItems.Select(item => item.ProductId).Distinct())
-        {
-            query = query.Add("ids", productId.ToString());
-        }
-
-        string productsUrl = $"{hosts.Value.ProductServiceUrl}/product/by-ids{query}";
-        using HttpResponseMessage productsResponse = await httpClient.GetAsync(productsUrl, cancellationToken);
-        productsResponse.EnsureSuccessStatusCode();
-
-        List<JsonElement>? products =
-            await productsResponse.Content.ReadFromJsonAsync<List<JsonElement>>(cancellationToken);
-
-        Dictionary<int, JsonElement> productsById = (products ?? [])
-            .Where(product => product.TryGetProperty("productId", out _))
-            .ToDictionary(product => product.GetProperty("productId").GetInt32());
-
-        return cartItems
-            .Select(item => new CartItemWithProductDto
+        var query = readDbContext.CartProducts
+            .AsNoTracking()
+            .Where(cartProduct => cartProduct.UserId == userId)
+            .Join(readDbContext.StoreProducts.AsNoTracking(),
+                cartProduct => new { cartProduct.StoreLocationId, cartProduct.ProductId },
+                storeProduct => new { storeProduct.StoreLocationId, storeProduct.ProductId },
+                (cartProduct, storeProduct) => new { cartProduct, storeProduct })
+            .Join(readDbContext.Products.AsNoTracking(),
+                sp => sp.storeProduct.ProductId,
+                product => product.ProductId,
+                (sp, product) => new { sp.cartProduct, sp.storeProduct, product })
+            .Join(readDbContext.Categories.AsNoTracking(),
+                sp => sp.product.CategoryId,
+                category => category.CategoryId,
+                (sp, category) => new { sp.cartProduct, sp.storeProduct, sp.product, category })
+            .Join(readDbContext.Manufacturers.AsNoTracking(),
+                sp => sp.product.ManufacturerId,
+                manufacturer => manufacturer.ManufacturerId,
+                (sp, manufacturer) => new { sp.cartProduct, sp.storeProduct, sp.product, sp.category, manufacturer })
+            .Join(readDbContext.StoreLocations.AsNoTracking(),
+                sp => sp.storeProduct.StoreLocationId,
+                storeLocation => storeLocation.StoreLocationId,
+                (sp, storeLocation) => new
+                {
+                    sp.cartProduct,
+                    sp.storeProduct,
+                    sp.product,
+                    sp.category,
+                    sp.manufacturer,
+                    storeLocation,
+                })
+            .Select(g => new
             {
-                UserId = item.UserId,
-                ProductId = item.ProductId,
-                StoreLocationId = item.StoreLocationId,
-                Quantity = item.Quantity,
-                Product = productsById.TryGetValue(item.ProductId, out JsonElement product) ? product : null,
+                CartProduct = g.cartProduct,
+                StoreProductRow = new StoreProductReadRow
+                {
+                    StoreProduct = g.storeProduct,
+                    Product = g.product,
+                    StoreLocation = g.storeLocation,
+                    Manufacturer = g.manufacturer,
+                    Category = g.category,
+                    Images = readDbContext.ProductImages
+                        .Where(image => image.ProductId == g.product.ProductId)
+                        .ToList(),
+                },
+            });
+
+        var rows = await query.ToListAsync(cancellationToken);
+
+        return rows
+            .Select(row => new CartItemWithProductDto
+            {
+                UserId = row.CartProduct.UserId,
+                ProductId = row.CartProduct.ProductId,
+                StoreLocationId = row.CartProduct.StoreLocationId,
+                Quantity = row.CartProduct.Quantity,
+                Product = mapper.Map<StoreProductDto>(row.StoreProductRow),
             })
             .ToList();
     }
@@ -69,7 +96,7 @@ public class CartService(HttpClient httpClient, IOptions<MicroserviceHosts> host
             quantity = request.Quantity,
         });
 
-        return await httpClient.SendAsync(cartRequest, cancellationToken);
+        return await _httpClient.SendAsync(cartRequest, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> RemoveItemAsync(
@@ -84,7 +111,7 @@ public class CartService(HttpClient httpClient, IOptions<MicroserviceHosts> host
 
         string cartUrl = $"{hosts.Value.UserServiceUrl}/cart{query}";
         using HttpRequestMessage cartRequest = CreateAuthorizedRequest(HttpMethod.Delete, cartUrl, authorizationHeader);
-        return await httpClient.SendAsync(cartRequest, cancellationToken);
+        return await _httpClient.SendAsync(cartRequest, cancellationToken);
     }
 
     private static HttpRequestMessage CreateAuthorizedRequest(

@@ -5,28 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Reference Include="ECommerceBackend.Utils.Jwt">
-          <HintPath>..\..\..\..\.nuget\packages\tomas.ecommercebackend.utils.jwt\1.0.0\lib\net9.0\ECommerceBackend.Utils.Jwt.dll</HintPath>
-        </Reference>
-        <Reference Include="EventSystemHelper.Kafka">
-          <HintPath>..\..\..\..\.nuget\packages\tomas.eventsystemhelper.kafka\1.0.2\lib\net9.0\EventSystemHelper.Kafka.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore">
-            <HintPath>..\..\..\..\.nuget\packages\microsoft.aspnetcore.identity.entityframeworkcore\9.0.4\lib\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.EntityFrameworkCore">
-            <HintPath>..\..\..\..\.nuget\packages\microsoft.entityframeworkcore\9.0.4\lib\net8.0\Microsoft.EntityFrameworkCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Microsoft.Extensions.Options">
-            <HintPath>..\..\..\..\.nuget\packages\microsoft.extensions.options\9.0.6\lib\net9.0\Microsoft.Extensions.Options.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="Confluent.Kafka" Version="2.13.0" />
-        <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.2" />
         <PackageReference Include="Tomas.ECommerceBackend.Utils" Version="1.0.5" />
         <PackageReference Include="Tomas.ECommerceBackend.Utils.Jwt" Version="1.0.6" />
         <PackageReference Include="MediatR" Version="13.0.0" />
@@ -41,6 +21,7 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
         <PackageReference Include="Tomas.EventSystemHelper.Kafka" Version="1.0.2" />
+        <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.7" />
     </ItemGroup>
 
     <ItemGroup>

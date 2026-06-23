@@ -38,6 +38,9 @@ builder.Services.AddScoped<IEventHandler<CategoryDeletedEvent>, CategoryDeletedH
 builder.Services.AddScoped<IEventHandler<ProductImageCreatedEvent>, ProductImageCreatedHandler>();
 builder.Services.AddScoped<IEventHandler<ProductImageUpdatedEvent>, ProductImageUpdatedHandler>();
 builder.Services.AddScoped<IEventHandler<ProductImageDeletedEvent>, ProductImageDeletedHandler>();
+builder.Services.AddScoped<IEventHandler<ProductAddedToCartEvent>, ProductAddedToCartHandler>();
+builder.Services.AddScoped<IEventHandler<ProductCartQuantityModifiedEvent>, ProductCartQuantityModifiedHandler>();
+builder.Services.AddScoped<IEventHandler<ProductRemovedFromCartEvent>, ProductRemovedFromCartHandler>();
 
 builder.Services.AddHostedService<ProductAddedToStoreWorker>();
 builder.Services.AddHostedService<ProductStockUpdatedWorker>();
@@ -57,6 +60,9 @@ builder.Services.AddHostedService<CategoryDeletedWorker>();
 builder.Services.AddHostedService<ProductImageCreatedWorker>();
 builder.Services.AddHostedService<ProductImageUpdatedWorker>();
 builder.Services.AddHostedService<ProductImageDeletedWorker>();
+builder.Services.AddHostedService<ProductAddedToCartWorker>();
+builder.Services.AddHostedService<ProductCartQuantityModifiedWorker>();
+builder.Services.AddHostedService<ProductRemovedFromCartWorker>();
 
 var host = builder.Build();
 host.Run();

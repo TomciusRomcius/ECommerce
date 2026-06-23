@@ -16,7 +16,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8"/>
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.8" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
-        <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.5" />
+        <PackageReference Include="Tomas.ECommerceBackend.EventTypes" Version="1.0.7" />
         <PackageReference Include="Tomas.ECommerceBackend.Utils" Version="1.0.8" />
         <PackageReference Include="Tomas.EventSystemHelper.Kafka" Version="1.0.2" />
     </ItemGroup>

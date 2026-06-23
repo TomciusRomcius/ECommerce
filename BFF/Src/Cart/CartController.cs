@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using BFF.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,21 +10,18 @@ namespace BFF.Cart;
 public class CartController(ICartService cartService, ILogger<CartController> logger) : ControllerBase
 {
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetItems(CancellationToken cancellationToken)
     {
-        string authorizationHeader = Request.Headers.Authorization.ToString();
+        string? userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId is null)
+        {
+            return Unauthorized("You must be logged in to get cart items.");
+        }
 
-        try
-        {
-            IReadOnlyList<CartItemWithProductDto> items =
-                await cartService.GetItemsWithProductsAsync(authorizationHeader, cancellationToken);
-            return Ok(new { data = items });
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogWarning(ex, "Failed to fetch cart items.");
-            return StatusCode(StatusCodes.Status502BadGateway, new { error = "Failed to fetch cart items." });
-        }
+        IReadOnlyList<CartItemWithProductDto> items =
+            await cartService.GetItemsWithProductsAsync(userId, cancellationToken);
+        return Ok(new { data = items });
     }
 
     [HttpPost]

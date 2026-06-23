@@ -36,7 +36,7 @@ builder.Services.AddOptions<KeycloakAuthOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 builder.Services.AddHttpClient<IKeycloakTokenService, KeycloakTokenService>();
-builder.Services.AddHttpClient<ICartService, CartService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddHttpClient<IOrderPaymentSessionService, OrderPaymentSessionService>();
 builder.Services.AddScoped<IStoreProductsService, StoreProductsService>();
 builder.Services.AddHttpClient<IProductService, ProductService>();
