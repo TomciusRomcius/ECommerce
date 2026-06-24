@@ -56,6 +56,7 @@ builder.Services.AddOptions<S3Configuration>()
 builder.Services.AddScoped<StoreProductImageUrlsMappingAction>();
 builder.Services.AddSingleton<IS3ImageUrlBuilder, S3ImageUrlBuilder>();
 builder.Services.AddApplicationAuth(builder);
+builder.Services.AddBackgroundJwtRefresher();
 builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
     S3Configuration s3 = sp.GetRequiredService<IOptions<S3Configuration>>().Value;
