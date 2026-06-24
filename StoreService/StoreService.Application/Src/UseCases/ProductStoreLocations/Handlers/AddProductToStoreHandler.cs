@@ -3,6 +3,7 @@ using ECommerceBackend.Utils;
 using EventSystemHelper.Kafka.Services;
 using EventSystemHelper.Kafka.Utils;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StoreService.Application.Persistence;
@@ -25,32 +26,33 @@ public class AddProductToStoreHandler(
             request.ProductStoreLocation.StoreLocationId
         );
 
+        bool exists = await context.ProductStoreLocations
+            .AnyAsync(psl => psl.ProductId == request.ProductStoreLocation.ProductId 
+                && psl.StoreLocationId == request.ProductStoreLocation.StoreLocationId);
+
+        if (exists)
+        {
+            return new ResultError(ResultErrorType.INVALID_OPERATION_ERROR, "The product is already in the store.");
+        }
+
         logger.LogDebug("Product store location entity: {@ProductStoreLocation}", request.ProductStoreLocation);
         await context.ProductStoreLocations.AddAsync(request.ProductStoreLocation, cancellationToken);
-        try
-        {
-            await context.SaveChangesAsync(cancellationToken);
-            logger.LogInformation(
-                "Successfully added product with id: {ProductId} to the store",
-                request.ProductStoreLocation.ProductId
-            );
+        await context.SaveChangesAsync(cancellationToken);
+        logger.LogInformation(
+            "Successfully added product with id: {ProductId} to the store",
+            request.ProductStoreLocation.ProductId
+        );
 
-            var kafkaEvent = new ProductAddedToStoreEvent
-            {
-                ProductId = request.ProductStoreLocation.ProductId,
-                StoreLocationId = request.ProductStoreLocation.StoreLocationId,
-                Stock = request.ProductStoreLocation.Stock,
-            };
-            string sEvent = JsonUtils.Serialize(kafkaEvent);
-            await new KafkaEventProducer(kafkaConfiguration.Value)
-                .ProduceEventAsync("product-added-to-store", sEvent, cancellationToken);
-
-            return null;
-        }
-        catch (Exception ex)
+        var kafkaEvent = new ProductAddedToStoreEvent
         {
-            logger.LogError(ex, "Encountered an exception while adding a product to a store");
-            return new ResultError(ResultErrorType.UNKNOWN_ERROR, "Failed to add the product to the store");
-        }
+            ProductId = request.ProductStoreLocation.ProductId,
+            StoreLocationId = request.ProductStoreLocation.StoreLocationId,
+            Stock = request.ProductStoreLocation.Stock,
+        };
+        string sEvent = JsonUtils.Serialize(kafkaEvent);
+        await new KafkaEventProducer(kafkaConfiguration.Value)
+            .ProduceEventAsync("product-added-to-store", sEvent, cancellationToken);
+
+        return null;
     }
 }
