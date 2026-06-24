@@ -63,8 +63,8 @@ read -p "Enter Stripe webhook secret(or leave empty): " stripeWebhookSecret
 
 echo "Stripe__ApiKey=$stripeApiKey" >> ../PaymentService/.env
 echo "Stripe__WebhookSecret=$stripeWebhookSecret" >> ../PaymentService/.env
-echo "Stripe__CheckoutSuccessUrl=http://localhost:4200/checkout?payment=success" >> ../PaymentService/.env
-echo "Stripe__CheckoutCancelUrl=http://localhost:4200/checkout?payment=cancelled" >> ../PaymentService/.env
+echo "Stripe__CheckoutSuccessUrl=http://localhost:4200/checkout-success" >> ../PaymentService/.env
+echo "Stripe__CheckoutCancelUrl=http://localhost:4200/checkout-cancelled" >> ../PaymentService/.env
 
 addJwtEnvs "PaymentService"
 addMicroserviceUrls "PaymentService"

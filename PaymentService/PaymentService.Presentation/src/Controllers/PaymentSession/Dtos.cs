@@ -1,6 +1,5 @@
 ﻿using PaymentService.Domain.src.Enums;
 using System.ComponentModel.DataAnnotations;
-using Stripe;
 
 namespace PaymentService.Presentation.src.Controllers.PaymentSession
 {
@@ -14,5 +13,11 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
         public int PriceCents { get; set; }
         [Required]
         public PaymentProvider PaymentProvider { get; set; }
+    }
+
+    public class VerifyStripePaymentDto
+    {
+        [Required]
+        public required string SessionId { get; init; } 
     }
 }

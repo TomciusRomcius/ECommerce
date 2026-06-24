@@ -24,6 +24,7 @@ import { Stores } from './views/admin/stores/stores';
 import { Store } from './views/admin/store/store';
 import { storeLocationResolver } from './views/admin/store/store-location.resolver';
 import { storeProductsResolver } from './views/admin/store/store-products.resolver';
+import { CheckoutSuccessPage as CheckoutSuccessPage } from './views/checkout-success/checkout-success';
 
 export const routes: Routes = [
   {
@@ -49,6 +50,10 @@ export const routes: Routes = [
   {
     path: 'checkout',
     component: CheckoutPage,
+  },
+  {
+    path: 'checkout-success',
+    component: CheckoutSuccessPage
   },
   {
     path: 'admin',

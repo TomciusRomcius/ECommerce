@@ -1,9 +1,9 @@
 using System.Text.Json;
+using ECommerceBackend.EventTypes;
 using EventSystemHelper.Kafka.Services;
 using EventSystemHelper.Kafka.Utils;
 using Microsoft.Extensions.Options;
 using PaymentService.Domain.src.Utils;
-using PaymentService.Infrastructure.src.EventTypes;
 using PaymentService.Infrastructure.src.Interfaces;
 using Stripe;
 using Stripe.Checkout;
@@ -42,10 +42,22 @@ public class CheckoutSessionCompletedStrategy : IStripeWebhookStrategy
             );
         }
 
+
+        if (!stripeSession.Metadata.TryGetValue("userid", out string? orderId) || string.IsNullOrWhiteSpace(orderId))
+        {
+            return new ResultError(
+                ResultErrorType.INVALID_OPERATION_ERROR,
+                "Checkout session does not have a orderid attached to its metadata!"
+            );
+        }
+
+        long amount = stripeSession.AmountTotal ?? throw new InvalidOperationException("Amount total is null");
+
         var kafkaEvent = new ChargeSucceededEvent
         {
             UserId = userId,
-            Ammount = stripeSession.AmountTotal ?? 0,
+            OrderId = orderId,
+            Amount = (int)stripeSession.AmountTotal, // TODO: long
         };
 
         string jsonMessage = JsonSerializer.Serialize(kafkaEvent);

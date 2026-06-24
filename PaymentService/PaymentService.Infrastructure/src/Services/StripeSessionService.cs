@@ -1,4 +1,5 @@
 using PaymentService.Application.src.Interfaces;
+using PaymentService.Application.src.Models;
 using PaymentService.Domain.src.Enums;
 using PaymentService.Domain.src.Models;
 using PaymentService.Domain.src.Utils;
@@ -23,7 +24,7 @@ public class StripeSessionService : IProviderPaymentSessionService
         var options = new SessionCreateOptions
         {
             Mode = "payment",
-            SuccessUrl = $"{_stripeSettings.CheckoutSuccessUrl}&session_id={{CHECKOUT_SESSION_ID}}",
+            SuccessUrl = $"{_stripeSettings.CheckoutSuccessUrl}?session_id={{CHECKOUT_SESSION_ID}}",
             CancelUrl = _stripeSettings.CheckoutCancelUrl,
             LineItems =
             [
@@ -41,13 +42,10 @@ public class StripeSessionService : IProviderPaymentSessionService
                     },
                 },
             ],
-            PaymentIntentData = new SessionPaymentIntentDataOptions
+            Metadata = new Dictionary<string, string>
             {
-                Metadata = new Dictionary<string, string>
-                {
-                    { "userid", sessionOptions.UserId.ToString() },
-                    { "orderId", sessionOptions.OrderId.ToString() },
-                },
+                { "userid", sessionOptions.UserId.ToString() },
+                { "orderid", sessionOptions.OrderId.ToString() },
             },
         };
 
@@ -61,6 +59,28 @@ public class StripeSessionService : IProviderPaymentSessionService
             CheckoutUrl = session.Url!,
             Currency = "usd",
         };
+    }
+
+    public async Task<PaymentSessionDetails?> GetPaymentSessionDetails(string sessionId)
+    {
+        try
+        {
+            var sessionService = new SessionService();
+            Session session = await sessionService.GetAsync(sessionId);
+
+            string orderId = session.Metadata["orderid"];
+            string userId = session.Metadata["userid"];
+            long amount = session.AmountTotal ?? throw new InvalidOperationException("Stripe session does not have payment amount.");
+            return new PaymentSessionDetails(orderId, userId, amount, session.PaymentStatus == "paid");
+        }
+        catch (StripeException ex)
+        {   
+            if (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            throw;
+        }
     }
 
     public Task<Result<T>> ParseWebhookEvent<T>(string json, string signature)

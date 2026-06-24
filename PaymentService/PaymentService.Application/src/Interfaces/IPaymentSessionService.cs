@@ -1,3 +1,4 @@
+using PaymentService.Application.src.Models;
 using PaymentService.Domain.src.Models;
 using PaymentService.Domain.src.Utils;
 
@@ -17,4 +18,5 @@ public interface IProviderPaymentSessionService
 {
     public Task<PaymentProviderSession> GeneratePaymentSession(GeneratePaymentSessionOptions sessionOptions);
     public Task<Result<T>> ParseWebhookEvent<T>(string json, string signature);
+    public Task<PaymentSessionDetails?> GetPaymentSessionDetails(string sessionId);
 }

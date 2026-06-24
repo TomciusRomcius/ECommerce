@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.src.Interfaces;
 using PaymentService.Domain.src.Entities;
+using PaymentService.Domain.src.Enums;
 using PaymentService.Domain.src.Utils;
 
 namespace PaymentService.Presentation.src.Controllers.PaymentSession
@@ -45,6 +46,13 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
             }
 
             return Created("", result.GetValue());
+        }
+
+        [HttpPost("verify/stripe")]
+        public async Task<IActionResult> VerifyStripePaymentAsync([FromBody] VerifyStripePaymentDto dto)
+        {
+            bool hasPaid = await _paymentCoordinator.VerifyPaymentAsync(PaymentProvider.STRIPE, dto.SessionId);
+            return Ok(new { hasPaid });
         }
 
         [HttpDelete]
