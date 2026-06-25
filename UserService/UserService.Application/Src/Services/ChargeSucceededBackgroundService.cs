@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using ECommerceBackend.EventTypes;
+using ECommerceBackend.Utils;
 using EventSystemHelper.Kafka.Services;
 using EventSystemHelper.Kafka.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -35,42 +36,55 @@ public class ChargeSucceededBackgroundService : IChargeSucceededEventListener
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Started {ListenerName}", nameof(ChargeSucceededBackgroundService));
+        var consumer = new KafkaEventConsumer(
+            _kafkaConfiguration.Value,
+            AutoOffsetReset.Earliest,
+            "user-service",
+            "charge_succeeded"
+        );
+
+        var producer = new KafkaEventProducer(_kafkaConfiguration.Value);
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                KafkaEventConsumer consumer = new(
-                    _kafkaConfiguration.Value,
-                    AutoOffsetReset.Earliest,
-                    "user-service",
-                    "charge_succeeded"
-                );
-
                 ChargeSucceededEvent? chargeEvent = consumer.Consume<ChargeSucceededEvent>(cancellationToken);
                 if (chargeEvent == null)
                 {
                     _logger.LogError("Failed to parse event type {EventName}!", nameof(ChargeSucceededEvent));
                     continue;
                 }
+                _logger.LogDebug("Handling event {TopicName}", chargeEvent.TopicName);
 
                 await _dbContext.CartProducts
                     .Where(cp => cp.UserId == chargeEvent.UserId)
                     .ExecuteDeleteAsync(cancellationToken);
+
+                var kafkaEvent = new UserCartClearedEvent
+                {
+                    UserId = chargeEvent.UserId
+                };
+
+                await producer.ProduceEventAsync(kafkaEvent.TopicName, 
+                    JsonUtils.Serialize(kafkaEvent),
+                    cancellationToken);
             }
             catch (ConsumeException ex)
             {
                 _logger.LogError(
-                    "Failed to parse event type {EventName}! Exception: {@Ex}",
+                    ex,
+                    "Failed to parse event type {EventName}! StackTrace: {StackTrace}",
                     nameof(ChargeSucceededEvent),
-                    ex
+                    ex.StackTrace
                 );
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                    "Unknown exception while consuming event type {EventName}. Exception: {@Ex}",
+             _logger.LogError(
+                    ex,
+                    "Failed to parse event type {EventName}! StackTrace: {StackTrace}",
                     nameof(ChargeSucceededEvent),
-                    ex
+                    ex.StackTrace
                 );
             }
         }
