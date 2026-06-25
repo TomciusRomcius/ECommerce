@@ -53,7 +53,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
 
             string sEvent = JsonUtils.Serialize(ev);
             await new KafkaEventProducer(_kafkaConfiguration)
-                .ProduceEventAsync("product-created", sEvent, cancellationToken);
+                .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
 
             IReadOnlyList<string> imageKeys = request.ImageKeys;
             if (imageKeys.Count == 0 && request.ImageCount > 0)
@@ -91,7 +91,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
                     };
 
                     await producer.ProduceEventAsync(
-                        "product-image-created",
+                        imageEv.TopicName,
                         JsonUtils.Serialize(imageEv),
                         cancellationToken);
                 }

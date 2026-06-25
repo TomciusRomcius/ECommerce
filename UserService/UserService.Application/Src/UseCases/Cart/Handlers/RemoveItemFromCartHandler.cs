@@ -62,7 +62,7 @@ public class RemoveItemFromCartHandler : IRequestHandler<RemoveItemFromCartComma
         };
         string sEvent = JsonUtils.Serialize(kafkaEvent);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("product-removed-from-cart", sEvent, cancellationToken);
+            .ProduceEventAsync(kafkaEvent.TopicName, sEvent, cancellationToken);
 
         return null;
     }

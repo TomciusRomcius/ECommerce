@@ -82,6 +82,6 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand>
 
         string sEvent = JsonUtils.Serialize(ev);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("product-updated", sEvent, cancellationToken);
+            .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
     }
 }

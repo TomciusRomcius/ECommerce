@@ -51,6 +51,6 @@ public class RemoveStoreLocationHandler : IRequestHandler<RemoveStoreLocationCom
 
         string sEvent = JsonUtils.Serialize(ev);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("store-deleted", sEvent, cancellationToken);
+            .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
     }
 }

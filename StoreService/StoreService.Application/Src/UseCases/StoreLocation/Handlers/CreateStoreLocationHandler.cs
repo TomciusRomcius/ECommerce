@@ -59,7 +59,7 @@ public class CreateStoreLocationHandler : IRequestHandler<CreateStoreLocationCom
 
         string sEvent = JsonUtils.Serialize(ev);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("store-created", sEvent, cancellationToken);
+            .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
 
         return entity;
     }

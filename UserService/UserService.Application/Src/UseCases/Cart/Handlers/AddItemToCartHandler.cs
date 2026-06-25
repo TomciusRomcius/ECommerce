@@ -58,7 +58,7 @@ public class AddItemToCartHandler : IRequestHandler<AddItemToCartCommand, Result
         };
         string sEvent = JsonUtils.Serialize(kafkaEvent);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("product-added-to-cart", sEvent, cancellationToken);
+            .ProduceEventAsync(kafkaEvent.TopicName, sEvent, cancellationToken);
 
         _logger.LogInformation(
             "Succesfully added product {ProductId} to user's(id: {UserId}) cart",

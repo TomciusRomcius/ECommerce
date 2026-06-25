@@ -49,7 +49,7 @@ public class RemoveProductFromStoreHandler : IRequestHandler<RemoveProductFromSt
             );
 
             string sEvent = JsonUtils.Serialize(ev);
-            await new KafkaEventProducer(_kafkaConfiguration).ProduceEventAsync("product-removed-from-store", sEvent, cancellationToken);
+            await new KafkaEventProducer(_kafkaConfiguration).ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
         }
         else
         {

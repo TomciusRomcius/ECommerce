@@ -54,7 +54,7 @@ public class UpdateStoreLocationHandler : IRequestHandler<UpdateStoreLocationCom
 
             string sEvent = JsonUtils.Serialize(ev);
             await new KafkaEventProducer(_kafkaConfiguration)
-                .ProduceEventAsync("store-updated", sEvent, cancellationToken);
+                .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
         }
         else
         {

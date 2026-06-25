@@ -51,7 +51,7 @@ public class AddProductToStoreHandler(
         };
         string sEvent = JsonUtils.Serialize(kafkaEvent);
         await new KafkaEventProducer(kafkaConfiguration.Value)
-            .ProduceEventAsync("product-added-to-store", sEvent, cancellationToken);
+            .ProduceEventAsync(kafkaEvent.TopicName, sEvent, cancellationToken);
 
         return null;
     }

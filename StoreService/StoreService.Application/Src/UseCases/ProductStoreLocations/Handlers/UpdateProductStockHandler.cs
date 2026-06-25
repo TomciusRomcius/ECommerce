@@ -53,7 +53,7 @@ public class UpdateProductStockHandler : IRequestHandler<UpdateProductStockComma
             );
 
             string sEvent = JsonUtils.Serialize(ev);
-            await new KafkaEventProducer(_kafkaConfiguration).ProduceEventAsync("product-stock-updated", sEvent, cancellationToken);
+            await new KafkaEventProducer(_kafkaConfiguration).ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
         }
         else
         {

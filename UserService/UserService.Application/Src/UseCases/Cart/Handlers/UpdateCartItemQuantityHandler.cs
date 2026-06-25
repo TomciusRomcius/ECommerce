@@ -71,7 +71,7 @@ public class UpdateCartItemQuantityHandler : IRequestHandler<UpdateCartItemQuant
         };
         string sEvent = JsonUtils.Serialize(kafkaEvent);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("product-cart-quantity-modified", sEvent, cancellationToken);
+            .ProduceEventAsync(kafkaEvent.TopicName, sEvent, cancellationToken);
 
         return null;
     }

@@ -79,6 +79,6 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand>
 
         string sEvent = JsonUtils.Serialize(ev);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("product-deleted", sEvent, cancellationToken);
+            .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
     }
 }
