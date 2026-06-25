@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ECommerceBackend.EventTypes;
 using ECommerceBackend.Utils;
 using EventSystemHelper.Kafka.Services;

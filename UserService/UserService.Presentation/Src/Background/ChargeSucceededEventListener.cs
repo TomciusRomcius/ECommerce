@@ -11,16 +11,16 @@ public class ChargeSucceededBackgroundService : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return Task.Run(async () =>
-            {
-                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-                await scope.ServiceProvider
-                    .GetRequiredService<IChargeSucceededEventListener>()
-                    .StartAsync(stoppingToken);
-            },
-            stoppingToken
-        );
+        await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+
+        // The service currently has blocking IO, so a separate thread is required.
+        await Task.Run(async () =>
+        {
+            await scope.ServiceProvider
+                .GetRequiredService<IChargeSucceededEventListener>()
+                .StartAsync(stoppingToken);
+        }, stoppingToken);
     }
 }
