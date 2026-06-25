@@ -11,7 +11,6 @@ public sealed class CategoryUpdatedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<CategoryUpdatedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "category-updated";
+    protected override string Topic => "category_updated";
 
-    protected override string EventLabel => "Category-updated";
 }

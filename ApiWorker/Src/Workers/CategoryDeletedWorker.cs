@@ -11,7 +11,6 @@ public sealed class CategoryDeletedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<CategoryDeletedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "category-deleted";
+    protected override string Topic => "category_deleted";
 
-    protected override string EventLabel => "Category-deleted";
 }

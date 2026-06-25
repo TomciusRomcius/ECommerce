@@ -11,7 +11,6 @@ public sealed class CategoryCreatedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<CategoryCreatedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "category-created";
+    protected override string Topic => "category_created";
 
-    protected override string EventLabel => "Category-created";
 }

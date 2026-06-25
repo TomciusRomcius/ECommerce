@@ -83,7 +83,7 @@ public class CategoriesService : ICategoriesService
 
         string sEvent = JsonUtils.Serialize(ev);
         await new KafkaEventProducer(_kafkaConfiguration)
-            .ProduceEventAsync("category-created", sEvent, cancellationToken);
+            .ProduceEventAsync(ev.TopicName, sEvent, cancellationToken);
 
         return new Result<int>(entity.CategoryId);
     }

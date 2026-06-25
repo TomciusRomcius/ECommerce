@@ -15,7 +15,7 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
     private readonly ILogger<ChargeSucceededConsumer> _logger;
     private readonly KafkaConfiguration _kafkaConfiguration;
     private readonly IPaymentSessionPersistenceService _paymentSessionPersistenceService;
-    private const string TopicName = "charge-succeeded";
+    private const string TopicName = "charge_succeeded";
 
     public ChargeSucceededConsumer(
         ILogger<ChargeSucceededConsumer> logger,

@@ -11,7 +11,6 @@ public sealed class ProductImageCreatedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<ProductImageCreatedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "product-image-created";
+    protected override string Topic => "product_image_created";
 
-    protected override string EventLabel => "Product-image-created";
 }

@@ -11,7 +11,6 @@ public sealed class StoreDeletedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<StoreDeletedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "store-deleted";
+    protected override string Topic => "store_deleted";
 
-    protected override string EventLabel => "Store-deleted";
 }

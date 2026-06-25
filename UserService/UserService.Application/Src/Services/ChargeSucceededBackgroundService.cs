@@ -43,7 +43,7 @@ public class ChargeSucceededBackgroundService : IChargeSucceededEventListener
                     _kafkaConfiguration.Value,
                     AutoOffsetReset.Earliest,
                     "user-service",
-                    "charge-succeeded"
+                    "charge_succeeded"
                 );
 
                 ChargeSucceededEvent? chargeEvent = consumer.Consume<ChargeSucceededEvent>(cancellationToken);

@@ -11,7 +11,6 @@ public sealed class StoreUpdatedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<StoreUpdatedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "store-updated";
+    protected override string Topic => "store_updated";
 
-    protected override string EventLabel => "Store-updated";
 }

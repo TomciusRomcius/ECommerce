@@ -11,7 +11,6 @@ public sealed class ProductCartQuantityModifiedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<ProductCartQuantityModifiedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "product-cart-quantity-modified";
+    protected override string Topic => "product_cart_quantity_modified";
 
-    protected override string EventLabel => "Product-cart-quantity-modified";
 }

@@ -11,7 +11,6 @@ public sealed class ProductAddedToCartWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<ProductAddedToCartEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "product-added-to-cart";
+    protected override string Topic => "product_added_to_cart";
 
-    protected override string EventLabel => "Product-added-to-cart";
 }

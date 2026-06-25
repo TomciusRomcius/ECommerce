@@ -62,7 +62,7 @@ public class CheckoutSessionCompletedStrategy : IStripeWebhookStrategy
 
         string jsonMessage = JsonSerializer.Serialize(kafkaEvent);
 
-        await producer.ProduceEventAsync("charge-succeeded", jsonMessage, CancellationToken.None);
+        await producer.ProduceEventAsync(kafkaEvent.TopicName, jsonMessage, CancellationToken.None);
         return null;
     }
 }

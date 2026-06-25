@@ -20,8 +20,6 @@ public abstract class KafkaEventWorker<TEvent>(
 
     protected abstract string Topic { get; }
 
-    protected abstract string EventLabel { get; }
-
     protected virtual async Task HandleEventAsync(
         TEvent ev,
         IServiceScope scope,
@@ -72,11 +70,11 @@ public abstract class KafkaEventWorker<TEvent>(
                 });
                 await readDbContext.SaveChangesAsync(stoppingToken);
 
-                logger.LogInformation("{EventLabel} event handled: {@Event}", EventLabel, ev);
+                logger.LogInformation("{Topic} event handled: {@Event}", Topic, ev);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to process {EventLabel} event.", EventLabel);
+                logger.LogError(ex, "Failed to process {Topic} event.", Topic);
             }
         }
     }

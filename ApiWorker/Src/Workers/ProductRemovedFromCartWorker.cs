@@ -11,7 +11,6 @@ public sealed class ProductRemovedFromCartWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<ProductRemovedFromCartEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "product-removed-from-cart";
+    protected override string Topic => "product_removed_from_cart";
 
-    protected override string EventLabel => "Product-removed-from-cart";
 }

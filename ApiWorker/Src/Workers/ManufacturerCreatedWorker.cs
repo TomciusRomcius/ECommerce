@@ -11,7 +11,6 @@ public sealed class ManufacturerCreatedWorker(
     IServiceScopeFactory serviceScopeFactory)
     : KafkaEventWorker<ManufacturerCreatedEvent>(logger, kafkaConfiguration, serviceScopeFactory)
 {
-    protected override string Topic => "manufacturer-created";
+    protected override string Topic => "manufacturer_created";
 
-    protected override string EventLabel => "Manufacturer-created";
 }
