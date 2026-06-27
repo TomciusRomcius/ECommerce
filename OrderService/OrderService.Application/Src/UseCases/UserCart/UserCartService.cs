@@ -29,7 +29,7 @@ public class UserCartService : IUserCartService
         }
 
         List<CartProductMinimalModel> userCartItems = userCartItemsResult.GetValue();
-        _logger.LogInformation("Minimal: {@minimal}", userCartItems);
+        _logger.LogDebug("Minimal: {@minimal}", userCartItems);
         Result<List<ProductPriceModel>> productDetailsResult = await _mediator.Send(
             new GetProductDescriptionQuery(userCartItems.Select(i => i.ProductId).ToList()));
 
@@ -44,7 +44,7 @@ public class UserCartService : IUserCartService
         }
 
         List<ProductPriceModel> productPriceModels = productDetailsResult.GetValue();
-        _logger.LogInformation("productPriceModels: {@productPriceModels}", productPriceModels);
+        _logger.LogDebug("productPriceModels: {@productPriceModels}", productPriceModels);
 
         List<CartProductModel> cartProducts = [];
         foreach (CartProductMinimalModel cartPr in userCartItems)
@@ -71,8 +71,6 @@ public class UserCartService : IUserCartService
                 Price = cartPricingModel.Price
             });
         }
-
-        _logger.LogInformation("final: {@final}", cartProducts);
 
         if (!cartProducts.Any())
         {
