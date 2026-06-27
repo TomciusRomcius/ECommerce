@@ -1,1 +1,0 @@
-stripe listen --forward-to=localhost:5042/paymentsession/webhook
