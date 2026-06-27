@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using StoreService.Application.UseCases.AvailableProducts.Queries;
 using StoreService.Application.UseCases.ProductStoreLocations.Commands;
 using StoreService.Domain.Entities;
+using StoreService.Domain.Utils;
 using StoreService.Presentation.Controllers.AvailableProducts.dtos;
 using StoreService.Presentation.Mapping;
 using StoreService.Presentation.Utils;
@@ -80,5 +81,23 @@ public class AvailableProductsController : ControllerBase
 
         await _mediator.Send(new UpdateProductStockCommand(model));
         return Ok();
+    }
+
+    [HttpPost("reserve")]
+    public async Task<IActionResult> Reserve(
+        [FromBody] ReserveProductsDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        List<ReserveProductItem> products = dto.Products
+            .Select(p => new ReserveProductItem(p.StoreLocationId, p.ProductId, p.Stock))
+            .ToList();
+
+        ResultError? error = await _mediator.Send(
+            new ReserveProductsCommand(dto.OrderId, products),
+            cancellationToken);
+
+        return error == null
+            ? StatusCode(StatusCodes.Status201Created)
+            : ControllerUtils.ResultErrorToResponse(error);
     }
 }

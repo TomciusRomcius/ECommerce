@@ -35,18 +35,6 @@ public class GetProductsFromStoreWithIdsHandler
             return [];
         }
 
-        var reservedCounts = _context.ProductStoreLocations
-            .AsNoTracking()
-            .Where(psl => request.ProductIds.Contains(psl.ProductId))
-            .Select(psl => new
-            {
-                psl.StoreLocationId,
-                psl.ProductId,
-                Reserved = _context.ReservedProducts
-                    .Where(rp => rp.StoreLocationId == psl.StoreLocationId && rp.ProductId == psl.ProductId)
-                    .Sum(rp => (int?)rp.Stock) ?? 0,
-            });
-
         List<ProductStoreLocationQueryRow> rows = await _context.ProductStoreLocations
             .AsNoTracking()
             .Where(psl => request.ProductIds.Contains(psl.ProductId))
@@ -54,18 +42,13 @@ public class GetProductsFromStoreWithIdsHandler
                 _context.StoreLocations.AsNoTracking(),
                 psl => psl.StoreLocationId,
                 store => store.StoreLocationId,
-                (psl, store) => new { psl, store })
-            .Join(
-                reservedCounts,
-                row => new { row.psl.StoreLocationId, row.psl.ProductId },
-                reserved => new { reserved.StoreLocationId, reserved.ProductId },
-                (row, reserved) => new ProductStoreLocationQueryRow
+                (psl, store) => new ProductStoreLocationQueryRow
                 {
-                    ProductId = row.psl.ProductId,
-                    StoreLocationId = row.psl.StoreLocationId,
-                    Stock = Math.Max(0, row.psl.Stock - reserved.Reserved),
-                    DisplayName = row.store.DisplayName,
-                    Address = row.store.Address,
+                    ProductId = psl.ProductId,
+                    StoreLocationId = psl.StoreLocationId,
+                    Stock = psl.Stock,
+                    DisplayName = store.DisplayName,
+                    Address = store.Address,
                 })
             .ToListAsync(cancellationToken);
 

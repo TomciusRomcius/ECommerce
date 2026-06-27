@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderService.Application.Persistence;
 using OrderService.Application.UseCases.Payment;
+using OrderService.Application.UseCases.ProductReservation;
 using OrderService.Application.UseCases.UserCart;
 using OrderService.Application.Utils;
 using OrderService.Domain.Entities;
@@ -14,18 +15,21 @@ public class OrderFlowService : IOrderFlowService
     private readonly ILogger<OrderFlowService> _logger;
     private readonly IOrderPriceCalculator _orderPriceCalculator;
     private readonly IPaymentSessionService _paymentSessionService;
+    private readonly IProductReservationService _productReservationService;
     private readonly IUserCartService _userCartService;
 
     public OrderFlowService(
         ILogger<OrderFlowService> logger,
         IPaymentSessionService paymentSessionService,
         IOrderPriceCalculator orderPriceCalculator,
+        IProductReservationService productReservationService,
         IUserCartService userCartService,
         DatabaseContext dbContext)
     {
         _logger = logger;
         _paymentSessionService = paymentSessionService;
         _orderPriceCalculator = orderPriceCalculator;
+        _productReservationService = productReservationService;
         _userCartService = userCartService;
         _dbContext = dbContext;
     }
@@ -65,6 +69,12 @@ public class OrderFlowService : IOrderFlowService
             return new Result<PaymentSessionModel>([
                 new ResultError(ResultErrorType.INVALID_OPERATION_ERROR, "Cannot create an order with zero items in the cart.")
             ]);
+        }
+
+        Result reservationResult = await _productReservationService.ReserveProductsAsync(orderId, cartProducts);
+        if (reservationResult.Errors.Any())
+        {
+            return new Result<PaymentSessionModel>(reservationResult.Errors);
         }
 
         decimal price = cartProducts.Sum(cp => cp.Price * cp.Quantity);

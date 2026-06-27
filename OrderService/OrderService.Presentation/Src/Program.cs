@@ -5,6 +5,7 @@ using OrderService.Application.Persistence;
 using OrderService.Application.Services;
 using OrderService.Application.UseCases.OrderFlow;
 using OrderService.Application.UseCases.Payment;
+using OrderService.Application.UseCases.ProductReservation;
 using OrderService.Application.UseCases.UserCart;
 using OrderService.Application.Utils;
 
@@ -16,6 +17,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Med
 
 builder.Services.AddScoped<IOrderFlowService, OrderFlowService>();
 builder.Services.AddScoped<IPaymentSessionService, PaymentSessionService>();
+builder.Services.AddScoped<IProductReservationService, ProductReservationService>();
 builder.Services.AddScoped<IOrderPriceCalculator, OrderPriceCalculator>();
 builder.Services.AddScoped<IUserCartService, UserCartService>();
 builder.Services.AddOptions<PostgresConfiguration>()

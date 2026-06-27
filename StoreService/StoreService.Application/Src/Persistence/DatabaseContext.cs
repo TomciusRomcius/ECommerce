@@ -37,10 +37,6 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<ReservedProductEntity>()
             .HasKey(rp => new { rp.OrderId, rp.StoreLocationId, rp.ProductId });
 
-        modelBuilder.Entity<ReservedProductEntity>()
-            .HasOne(rp => rp.StoreLocation)
-            .WithOne()
-            .HasForeignKey<ReservedProductEntity>(rp => rp.StoreLocationId);
 
         base.OnModelCreating(modelBuilder);
     }
