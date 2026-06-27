@@ -9,6 +9,8 @@ namespace OrderService.Application.Services;
 public interface IOrderService
 {
     Task<ResultError?> CreateOrderAsync(OrderEntity order);
+    Task CreateOrderWithProductsAsync(OrderEntity order, IEnumerable<OrderProductEntity> orderProducts);
+    Task DeleteActiveOrdersAsync();
     Task<OrderEntity?> GetOrderAsync(Guid userId, Guid orderId);
 }
 
@@ -29,6 +31,48 @@ public class OrderService : IOrderService
         _dbContext.Orders.Add(order);
         await _dbContext.SaveChangesAsync();
         return null;
+    }
+
+    public async Task CreateOrderWithProductsAsync(
+        OrderEntity order,
+        IEnumerable<OrderProductEntity> orderProducts)
+    {
+        _logger.LogTrace("Entered {MethodName}", nameof(CreateOrderWithProductsAsync));
+        _logger.LogDebug(
+            "Creating order {OrderId} for user {UserId} with {ProductCount} products",
+            order.OrderEntityId,
+            order.UserId,
+            orderProducts.Count());
+
+        _dbContext.OrderProducts.AddRange(orderProducts);
+        _dbContext.Orders.Add(order);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogDebug(
+            "Successfully created order {OrderId} for user {UserId}",
+            order.OrderEntityId,
+            order.UserId);
+    }
+
+    public async Task DeleteActiveOrdersAsync()
+    {
+        _logger.LogTrace("Entered {MethodName}", nameof(DeleteActiveOrdersAsync));
+
+        bool hasActiveOrder = await _dbContext.Orders.AsNoTracking()
+            .Where(o => o.OrderState == OrderState.Active)
+            .AnyAsync();
+
+        if (!hasActiveOrder)
+        {
+            return;
+        }
+
+        int deletedCount = await _dbContext.Orders.Where(o => o.OrderState == OrderState.Active)
+            .ExecuteDeleteAsync();
+
+        _logger.LogDebug("Deleted {DeletedCount} stale active order(s)", deletedCount);
+
+        // TODO: publish Kafka event and make the payment service delete the stripe payment session
     }
 
     public async Task<OrderEntity?> GetOrderAsync(Guid userId, Guid orderId)

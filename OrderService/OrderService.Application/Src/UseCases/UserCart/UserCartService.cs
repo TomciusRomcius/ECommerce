@@ -74,6 +74,11 @@ public class UserCartService : IUserCartService
 
         _logger.LogInformation("final: {@final}", cartProducts);
 
+        if (!cartProducts.Any())
+        {
+            _logger.LogDebug("User {UserId} has an empty cart.", userId);
+        }
+
         return new Result<IEnumerable<CartProductModel>>(cartProducts);
     }
 }

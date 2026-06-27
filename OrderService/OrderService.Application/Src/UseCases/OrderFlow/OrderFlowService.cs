@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using OrderService.Application.Persistence;
+using OrderService.Application.Services;
 using OrderService.Application.UseCases.Payment;
 using OrderService.Application.UseCases.ProductReservation;
 using OrderService.Application.UseCases.UserCart;
@@ -11,49 +9,33 @@ namespace OrderService.Application.UseCases.OrderFlow;
 
 public class OrderFlowService : IOrderFlowService
 {
-    private readonly DatabaseContext _dbContext;
-    private readonly ILogger<OrderFlowService> _logger;
     private readonly IOrderPriceCalculator _orderPriceCalculator;
+    private readonly IOrderService _orderService;
     private readonly IPaymentSessionService _paymentSessionService;
     private readonly IProductReservationService _productReservationService;
     private readonly IUserCartService _userCartService;
 
     public OrderFlowService(
-        ILogger<OrderFlowService> logger,
         IPaymentSessionService paymentSessionService,
         IOrderPriceCalculator orderPriceCalculator,
         IProductReservationService productReservationService,
         IUserCartService userCartService,
-        DatabaseContext dbContext)
+        IOrderService orderService)
     {
-        _logger = logger;
         _paymentSessionService = paymentSessionService;
         _orderPriceCalculator = orderPriceCalculator;
         _productReservationService = productReservationService;
         _userCartService = userCartService;
-        _dbContext = dbContext;
+        _orderService = orderService;
     }
 
     public async Task<Result<PaymentSessionModel>> CreateOrderPaymentSession(
         Guid userId,
         PaymentProvider paymentProvider)
     {
-        var hasActiveOrder = await _dbContext.Orders.AsNoTracking()
-            .Where(o => o.OrderState == OrderState.Active)
-            .AnyAsync();
-
-        if (hasActiveOrder)
-        {
-            await _dbContext.Orders.Where(o => o.OrderState == OrderState.Active)
-                .ExecuteDeleteAsync();
-
-            // TODO: publish Kafka event and make the payment service delete the stripe payment session
-        }
+        await _orderService.DeleteActiveOrdersAsync();
 
         Guid orderId = Guid.NewGuid();
-
-        _logger.LogTrace("Entered CreateOrderPaymentSession");
-        _logger.LogDebug("Creating order payment session for user: {UserId}", userId);
 
         Result<IEnumerable<CartProductModel>> cartProductsResult =
             await _userCartService.GetUserCartProductModelsAsync(userId);
@@ -71,10 +53,10 @@ public class OrderFlowService : IOrderFlowService
             ]);
         }
 
-        Result reservationResult = await _productReservationService.ReserveProductsAsync(orderId, cartProducts);
-        if (reservationResult.Errors.Any())
+        ResultError? reservationError = await _productReservationService.ReserveProductsAsync(orderId, cartProducts);
+        if (reservationError is not null)
         {
-            return new Result<PaymentSessionModel>(reservationResult.Errors);
+            return new Result<PaymentSessionModel>([reservationError]);
         }
 
         decimal price = cartProducts.Sum(cp => cp.Price * cp.Quantity);
@@ -95,11 +77,8 @@ public class OrderFlowService : IOrderFlowService
 
         if (intentSession.Errors.Any())
         {
-            _logger.LogError("Failed to create payment intent for user: {UserId}", userId);
             return new Result<PaymentSessionModel>([intentSession.Errors.First()]);
         }
-
-        _logger.LogTrace("Created payment session for user: {UserId}", userId);
 
         IEnumerable<OrderProductEntity> orderProducts = cartProducts.Select(cp => new OrderProductEntity
         {
@@ -112,9 +91,7 @@ public class OrderFlowService : IOrderFlowService
 
         OrderEntity order = new() { OrderEntityId = orderId, UserId = userId, OrderState = OrderState.Active };
 
-        _dbContext.OrderProducts.AddRange(orderProducts);
-        _dbContext.Orders.Add(order);
-        await _dbContext.SaveChangesAsync();
+        await _orderService.CreateOrderWithProductsAsync(order, orderProducts);
 
         return new Result<PaymentSessionModel>(intentSession.GetValue());
     }

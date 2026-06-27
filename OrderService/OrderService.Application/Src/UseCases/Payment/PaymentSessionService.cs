@@ -76,6 +76,11 @@ public class PaymentSessionService : IPaymentSessionService
             ]);
         }
 
+        _logger.LogTrace(
+            "Created payment session for order {OrderId}, user {UserId}",
+            orderId,
+            sessionOptions.UserId);
+
         return new Result<PaymentSessionModel>(session);
     }
 

@@ -54,6 +54,7 @@ public class ProductReservationService : IProductReservationService
 
         if (response.StatusCode == HttpStatusCode.Created)
         {
+            _logger.LogDebug("Successfully reserved products for order {OrderId}", orderId);
             return null;
         }
 
@@ -72,6 +73,6 @@ public class ProductReservationService : IProductReservationService
             );
         }
 
-        return new ResultError(ResultErrorType.UNKNOWN_ERROR, "Failed to reserve products.")
+        return new ResultError(ResultErrorType.UNKNOWN_ERROR, "Failed to reserve products.");
     }
 }
