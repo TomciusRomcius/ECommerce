@@ -43,7 +43,7 @@ public class CheckoutSessionCompletedStrategy : IStripeWebhookStrategy
         }
 
 
-        if (!stripeSession.Metadata.TryGetValue("userid", out string? orderId) || string.IsNullOrWhiteSpace(orderId))
+        if (!stripeSession.Metadata.TryGetValue("orderid", out string? orderId) || string.IsNullOrWhiteSpace(orderId))
         {
             return new ResultError(
                 ResultErrorType.INVALID_OPERATION_ERROR,
@@ -53,11 +53,11 @@ public class CheckoutSessionCompletedStrategy : IStripeWebhookStrategy
 
         long amount = stripeSession.AmountTotal ?? throw new InvalidOperationException("Amount total is null");
 
-        var kafkaEvent = new ChargeSucceededEvent
+        var kafkaEvent = new CheckoutSucceededEvent
         {
             UserId = userId,
             OrderId = orderId,
-            Amount = (int)stripeSession.AmountTotal, // TODO: long
+            Amount = amount,
         };
 
         string jsonMessage = JsonSerializer.Serialize(kafkaEvent);
