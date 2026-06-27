@@ -8,11 +8,11 @@ public class S3Configuration
     [Required]
     public required string AwsAccessKeyId { get; init; }
     [Required]
-    public required string AwsSecretAccessKey { get; init; } 
+    public required string AwsSecretAccessKey { get; init; }
     [Required]
     public required string ServiceUrl { get; init; }
     [Required]
     public required string Region { get; init; }
     [Required]
-    public string BucketName { get; init; }
+    public required string BucketName { get; init; }
 }
