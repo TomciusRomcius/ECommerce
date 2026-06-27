@@ -15,7 +15,7 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
     private readonly ILogger<ChargeSucceededConsumer> _logger;
     private readonly KafkaConfiguration _kafkaConfiguration;
     private readonly IPaymentSessionPersistenceService _paymentSessionPersistenceService;
-    private const string TopicName = "charge_succeeded";
+    private const string TopicName = "checkout_succeeded";
 
     public ChargeSucceededConsumer(
         ILogger<ChargeSucceededConsumer> logger,
@@ -38,8 +38,8 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
                     AutoOffsetReset.Latest,
                     "payment-service",
                     TopicName);
-                
-                ChargeSucceededEvent? ev = consumer.Consume<ChargeSucceededEvent>(cancellationToken);
+
+                CheckoutSucceededEvent? ev = consumer.Consume<CheckoutSucceededEvent>(cancellationToken);
                 if (ev is null)
                 {
                     _logger.LogError("Failed to parse the charge succeeded event!");

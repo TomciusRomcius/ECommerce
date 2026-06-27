@@ -97,7 +97,7 @@ namespace PaymentService.Application.src.Services
             }
 
             var producer = new KafkaEventProducer(_kafkaConfiguration);
-            var sMessage = new ChargeSucceededEvent
+            var sMessage = new CheckoutSucceededEvent
             {
                 UserId = details.UserId,
                 OrderId = details.OrderId,

@@ -47,7 +47,7 @@ public class ChargeSucceededConsumer : IChargeSucceededConsumer
         {
             try
             {
-                ChargeSucceededEvent? chargeEvent = consumer.Consume<ChargeSucceededEvent>(cancellationToken);
+                CheckoutSucceededEvent? chargeEvent = consumer.Consume<CheckoutSucceededEvent>(cancellationToken);
 
                 if (chargeEvent == null)
                 {

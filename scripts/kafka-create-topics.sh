@@ -8,7 +8,7 @@ done
 echo "Creating kafka topics"
 
 topics=(
-    charge_succeeded
+    checkout_succeeded
     product_created
     product_updated
     product_deleted

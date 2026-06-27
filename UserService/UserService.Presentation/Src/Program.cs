@@ -33,7 +33,7 @@ builder.Services.AddSingleton(Options.Create(new KafkaConfiguration(
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddApplicationAuth(builder);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MediatREntryPoint).Assembly));
-builder.Services.AddScoped<IChargeSucceededEventListener, ChargeSucceededBackgroundService>();
+builder.Services.AddScoped<ICheckoutSucceededEventListener, ChargeSucceededBackgroundService>();
 builder.Services.AddHostedService<UserService.Presentation.Background.ChargeSucceededBackgroundService>();
 
 builder.Services.AddControllers();

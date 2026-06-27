@@ -10,12 +10,12 @@ using UserService.Application.UseCases.Cart.Commands;
 
 namespace UserService.Application.Services;
 
-public interface IChargeSucceededEventListener
+public interface ICheckoutSucceededEventListener
 {
     Task StartAsync(CancellationToken cancellationToken);
 }
 
-public class ChargeSucceededBackgroundService : IChargeSucceededEventListener
+public class ChargeSucceededBackgroundService : ICheckoutSucceededEventListener
 {
     private readonly ILogger<ChargeSucceededBackgroundService> _logger;
     private readonly KafkaConfiguration _kafkaConfiguration;
@@ -39,16 +39,16 @@ public class ChargeSucceededBackgroundService : IChargeSucceededEventListener
             _kafkaConfiguration,
             AutoOffsetReset.Earliest,
             "user-service",
-            "charge_succeeded");
+            "checkout_succeeded");
 
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                ChargeSucceededEvent? chargeEvent = consumer.Consume<ChargeSucceededEvent>(cancellationToken);
+                CheckoutSucceededEvent? chargeEvent = consumer.Consume<CheckoutSucceededEvent>(cancellationToken);
                 if (chargeEvent == null)
                 {
-                    _logger.LogError("Failed to parse event type {EventName}!", nameof(ChargeSucceededEvent));
+                    _logger.LogError("Failed to parse event type {EventName}!", nameof(CheckoutSucceededEvent));
                     continue;
                 }
 
@@ -65,14 +65,14 @@ public class ChargeSucceededBackgroundService : IChargeSucceededEventListener
                 _logger.LogError(
                     ex,
                     "Failed to consume event type {EventName}",
-                    nameof(ChargeSucceededEvent));
+                    nameof(CheckoutSucceededEvent));
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
                     "Unknown exception while consuming event type {EventName}",
-                    nameof(ChargeSucceededEvent));
+                    nameof(CheckoutSucceededEvent));
             }
         }
     }

@@ -19,7 +19,7 @@ public class ChargeSucceededBackgroundService : BackgroundService
         await Task.Run(async () =>
         {
             await scope.ServiceProvider
-                .GetRequiredService<IChargeSucceededEventListener>()
+                .GetRequiredService<ICheckoutSucceededEventListener>()
                 .StartAsync(stoppingToken);
         }, stoppingToken);
     }
