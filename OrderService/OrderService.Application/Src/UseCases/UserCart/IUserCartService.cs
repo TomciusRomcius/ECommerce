@@ -4,5 +4,5 @@ namespace OrderService.Application.UseCases.UserCart;
 
 public interface IUserCartService
 {
-    Task<Result<IEnumerable<CartProductModel>>> GetUserCartProductModelsAsync(Guid userId);
+    Task<Result<IReadOnlyList<StoreProductModel>>> GetUserCartStoreProductsAsync(Guid userId);
 }

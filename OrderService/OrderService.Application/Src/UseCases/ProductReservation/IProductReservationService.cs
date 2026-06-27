@@ -7,6 +7,6 @@ public interface IProductReservationService
 {
     Task<ResultError?> ReserveProductsAsync(
         Guid orderId,
-        IEnumerable<CartProductModel> cartProducts,
+        IEnumerable<StoreProductModel> cartProducts,
         CancellationToken cancellationToken = default);
 }

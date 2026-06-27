@@ -38,14 +38,14 @@ public class OrderFlowService : IOrderFlowService
 
         Guid orderId = Guid.NewGuid();
 
-        Result<IEnumerable<CartProductModel>> cartProductsResult =
-            await _userCartService.GetUserCartProductModelsAsync(userId);
+        Result<IReadOnlyList<StoreProductModel>> cartProductsResult =
+            await _userCartService.GetUserCartStoreProductsAsync(userId);
         if (cartProductsResult.Errors.Any())
         {
             return new Result<PaymentSessionModel>(cartProductsResult.Errors);
         }
 
-        IEnumerable<CartProductModel> cartProducts = cartProductsResult.GetValue();
+        IReadOnlyList<StoreProductModel> cartProducts = cartProductsResult.GetValue();
 
         if (!cartProducts.Any())
         {
@@ -60,7 +60,7 @@ public class OrderFlowService : IOrderFlowService
             return new Result<PaymentSessionModel>([reservationError]);
         }
 
-        decimal price = cartProducts.Sum(cp => cp.Price * cp.Quantity);
+        decimal price = cartProducts.Sum(cp => cp.Product.Price * cp.Quantity);
 
         if (price <= 0)
         {
@@ -84,9 +84,9 @@ public class OrderFlowService : IOrderFlowService
         IEnumerable<OrderProductEntity> orderProducts = cartProducts.Select(cp => new OrderProductEntity
         {
             OrderId = orderId,
-            ProductId = cp.ProductId,
-            StoreLocationId = cp.StoreLocationId,
-            ProductName = "TODO",
+            ProductId = cp.Product.ProductId,
+            StoreLocationId = cp.StoreLocation.StoreLocationId,
+            ProductName = cp.Product.Name,
             Quantity = cp.Quantity
         });
 

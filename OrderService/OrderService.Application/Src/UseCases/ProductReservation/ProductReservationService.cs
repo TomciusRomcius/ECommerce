@@ -27,7 +27,7 @@ public class ProductReservationService : IProductReservationService
 
     public async Task<ResultError?> ReserveProductsAsync(
         Guid orderId,
-        IEnumerable<CartProductModel> cartProducts,
+        IEnumerable<StoreProductModel> cartProducts,
         CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Entered {Methodname}", nameof(ReserveProductsAsync));
@@ -38,8 +38,8 @@ public class ProductReservationService : IProductReservationService
             orderId,
             products = cartProducts.Select(cp => new
             {
-                storeLocationId = cp.StoreLocationId,
-                productId = cp.ProductId,
+                storeLocationId = cp.StoreLocation.StoreLocationId,
+                productId = cp.Product.ProductId,
                 stock = cp.Quantity
             })
         };
