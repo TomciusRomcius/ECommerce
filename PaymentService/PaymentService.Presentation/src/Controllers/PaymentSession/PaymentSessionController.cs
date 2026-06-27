@@ -1,4 +1,6 @@
 ﻿using ECommerce.Presentation.src.Utils;
+using ECommerceBackend.Utils.Jwt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Application.src.Interfaces;
 using PaymentService.Domain.src.Entities;
@@ -9,6 +11,7 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(Roles = RoleTypes.Admin)]
     public class PaymentSessionController : ControllerBase
     {
         private readonly IPaymentSessionCoordinator _paymentCoordinator;
@@ -18,7 +21,6 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
             _paymentCoordinator = paymentCoordinator;
         }
 
-        //TODO: JWT auth
         [HttpGet]
         public async Task<IActionResult> GetPaymentSessionAsync([FromQuery] Guid userId)
         {
@@ -26,12 +28,9 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
             return Ok(result);
         }
 
-        // TODO: JWT auth
         [HttpPost]
         public async Task<IActionResult> CreatePaymentSession([FromBody] CreatePaymentSessionDto dto)
         {
-            // TODO: error handling
-
             var options = new GeneratePaymentSessionOptions
             {
                 UserId = dto.UserId,
