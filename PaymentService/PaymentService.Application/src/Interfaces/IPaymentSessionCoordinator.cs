@@ -8,6 +8,7 @@ namespace PaymentService.Application.src.Interfaces
     {
         Task<Result<PaymentSessionEntity?>> CreatePaymentSessionAsync(PaymentProvider paymentProvider, GeneratePaymentSessionOptions options);
         Task<PaymentSessionEntity?> GetUserSessionAsync(Guid userId);
+        Task<ResultError?> DeleteUserSessionAsync(Guid userId);
         /// <summary>
         /// Verifies whether the user has paid and if yes, also publishes a CheckoutSucceededEvent
         /// </summary>

@@ -16,4 +16,5 @@ public interface IPaymentSessionService
         GeneratePaymentSessionOptions sessionOptions);
 
     Task<Result<PaymentSessionModel?>> GetPaymentSessionAsync(Guid userId);
+    Task<ResultError?> DeletePaymentSessionAsync(Guid userId);
 }

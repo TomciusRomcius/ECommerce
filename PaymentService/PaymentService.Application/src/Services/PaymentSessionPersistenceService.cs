@@ -59,15 +59,21 @@ namespace PaymentService.Application.Services
         public async Task<ResultError?> DeleteAsync(Guid userId)
         {
             _logger.LogTrace("Entered {MethodName}", nameof(DeleteAsync));
-            _logger.LogInformation("Deleting the payment session of user {UserId}", userId.ToString());
 
             int rowsAffected = await _databaseContext.PaymentSessions
                 .Where(x => x.UserId == userId)
                 .ExecuteDeleteAsync();
 
-            return rowsAffected != 1
-                ? new ResultError(ResultErrorType.INVALID_OPERATION_ERROR, "User does not exist!")
-                : null;
+            if (rowsAffected == 0)
+            {
+                _logger.LogDebug("No payment session found for user {UserId}", userId);
+            }
+            else
+            {
+                _logger.LogDebug("Deleted payment session for user {UserId}", userId);
+            }
+
+            return null;
         }
     }
 }

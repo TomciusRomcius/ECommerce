@@ -33,7 +33,8 @@ public class OrderFlowService : IOrderFlowService
         Guid userId,
         PaymentProvider paymentProvider)
     {
-        await _orderService.DeleteActiveOrdersAsync();
+        await _orderService.DeleteActiveOrdersAsync(userId);
+        await _paymentSessionService.DeletePaymentSessionAsync(userId);
 
         Guid orderId = Guid.NewGuid();
 

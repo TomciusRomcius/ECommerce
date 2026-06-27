@@ -10,7 +10,7 @@ public interface IOrderService
 {
     Task<ResultError?> CreateOrderAsync(OrderEntity order);
     Task CreateOrderWithProductsAsync(OrderEntity order, IEnumerable<OrderProductEntity> orderProducts);
-    Task DeleteActiveOrdersAsync();
+    Task DeleteActiveOrdersAsync(Guid userId);
     Task<OrderEntity?> GetOrderAsync(Guid userId, Guid orderId);
 }
 
@@ -54,12 +54,12 @@ public class OrderService : IOrderService
             order.UserId);
     }
 
-    public async Task DeleteActiveOrdersAsync()
+    public async Task DeleteActiveOrdersAsync(Guid userId)
     {
         _logger.LogTrace("Entered {MethodName}", nameof(DeleteActiveOrdersAsync));
 
         bool hasActiveOrder = await _dbContext.Orders.AsNoTracking()
-            .Where(o => o.OrderState == OrderState.Active)
+            .Where(o => o.OrderState == OrderState.Active && o.UserId == userId)
             .AnyAsync();
 
         if (!hasActiveOrder)
@@ -67,12 +67,14 @@ public class OrderService : IOrderService
             return;
         }
 
-        int deletedCount = await _dbContext.Orders.Where(o => o.OrderState == OrderState.Active)
+        int deletedCount = await _dbContext.Orders
+            .Where(o => o.OrderState == OrderState.Active && o.UserId == userId)
             .ExecuteDeleteAsync();
 
-        _logger.LogDebug("Deleted {DeletedCount} stale active order(s)", deletedCount);
-
-        // TODO: publish Kafka event and make the payment service delete the stripe payment session
+        _logger.LogDebug(
+            "Deleted {DeletedCount} stale active order(s) for user {UserId}",
+            deletedCount,
+            userId);
     }
 
     public async Task<OrderEntity?> GetOrderAsync(Guid userId, Guid orderId)

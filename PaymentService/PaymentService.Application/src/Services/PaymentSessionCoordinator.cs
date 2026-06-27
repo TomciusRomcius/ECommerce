@@ -81,6 +81,13 @@ namespace PaymentService.Application.src.Services
             return await _paymentSessionPersistenceService.GetUserSessionAsync(userId);
         }
 
+        public async Task<ResultError?> DeleteUserSessionAsync(Guid userId)
+        {
+            _logger.LogTrace("Entered DeleteUserSessionAsync");
+            _logger.LogDebug("Deleting payment session for user {UserId}", userId);
+            return await _paymentSessionPersistenceService.DeleteAsync(userId);
+        }
+
         public async Task<bool> VerifyPaymentAsync(PaymentProvider provider, string checkoutId)
         {
             IProviderPaymentSessionService? providerService = _paymentSessionFactory.CreatePaymentSessionService(provider);

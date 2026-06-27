@@ -105,4 +105,24 @@ public class PaymentSessionService : IPaymentSessionService
         PaymentSessionModel? session = JsonSerializer.Deserialize<PaymentSessionModel>(json);
         return new Result<PaymentSessionModel?>(session);
     }
+
+    public async Task<ResultError?> DeletePaymentSessionAsync(Guid userId)
+    {
+        _logger.LogTrace("Entered PaymentSessionService.DeletePaymentSessionAsync");
+        _logger.LogDebug("Deleting payment session for user {UserId}", userId);
+
+        HttpResponseMessage response =
+            await _httpClient.DeleteAsync($"{_networkConfig.PaymentServiceUrl}/paymentsession?userId={userId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError(
+                "Failed to delete payment session for user {UserId}. HTTP body: {HttpBody}. HTTP Status code: {StatusCode}",
+                userId,
+                await response.Content.ReadAsStringAsync(),
+                response.StatusCode);
+            return new ResultError(ResultErrorType.UNKNOWN_ERROR, "Failed to delete payment session");
+        }
+
+        return null;
+    }
 }

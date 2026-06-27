@@ -56,9 +56,15 @@ namespace PaymentService.Presentation.src.Controllers.PaymentSession
         }
 
         [HttpDelete]
-        public void Delete([FromQuery] Guid userId)
+        public async Task<IActionResult> Delete([FromQuery] Guid userId)
         {
-            // TODO: delete
+            ResultError? error = await _paymentCoordinator.DeleteUserSessionAsync(userId);
+            if (error is not null)
+            {
+                return ControllerUtils.ResultErrorToResponse(error);
+            }
+
+            return NoContent();
         }
     }
 }
