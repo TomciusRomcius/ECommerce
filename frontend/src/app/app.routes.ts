@@ -1,99 +1,99 @@
 import { Routes } from '@angular/router';
-import { HomePage } from './views/home/home-page';
+import { HomeComponent } from './views/home/home.component';
 import { productResolver } from './views/home/home-page.resolver';
 import { loginRedirectGuard } from './guards/login-redirect.guard';
-import { AuthCallback } from './views/auth/auth-callback';
-import { ProductPage } from './views/product/product-page';
+import { AuthCallbackComponent } from './views/auth/auth-callback.component';
+import { ProductComponent } from './views/product/product.component';
 import { productDetailResolver } from './views/product/product-detail.resolver';
-import { CartPage } from './views/cart/cartPage';
-import { CheckoutPage } from './views/checkout/checkout-page';
-import { StoresPage } from './views/stores/stores-page';
+import { CartComponent } from './views/cart/cart.component';
+import { CheckoutComponent } from './views/checkout/checkout.component';
+import { StoresComponent } from './views/stores/stores.component';
 import { storeLocationsResolver } from './views/stores/store-locations.resolver';
-import { AdminPage } from './views/admin/admin-page';
-import { CreateManufacturerPage } from './views/admin/manufacturers/components/create-manufacturer/create-manufacturer-page';
-import { CreateCategoryPage } from './views/create-category/create-category-page';
-import { CreateProductPage } from './views/create-product/create-product-page';
-import { CreateStorePage } from './views/create-store/create-store-page';
-import { Manufacturers } from './views/admin/manufacturers/manufacturers';
+import { AdminComponent } from './views/admin/admin.component';
+import { CreateManufacturerComponent } from './views/admin/manufacturers/components/create-manufacturer/create-manufacturer.component';
+import { CreateCategoryComponent } from './views/create-category/create-category.component';
+import { CreateProductComponent } from './views/create-product/create-product.component';
+import { CreateStoreComponent } from './views/create-store/create-store.component';
+import { ManufacturersComponent } from './views/admin/manufacturers/manufacturers.component';
 import { manufacturersResolver } from './views/admin/manufacturers/manufacturers.resolver';
-import { Categories } from './views/admin/categories/categories';
+import { CategoriesComponent } from './views/admin/categories/categories.component';
 import { categoriesResolver } from './views/admin/categories/categories.resolver';
-import { Products } from './views/admin/products/products';
+import { ProductsComponent } from './views/admin/products/products.component';
 import { productsResolver } from './views/admin/products/products.resolver';
-import { Stores } from './views/admin/stores/stores';
-import { Store } from './views/admin/store/store';
+import { StoresComponent as AdminStoresComponent } from './views/admin/stores/stores.component';
+import { StoreComponent } from './views/admin/store/store.component';
 import { storeLocationResolver } from './views/admin/store/store-location.resolver';
 import { storeProductsResolver } from './views/admin/store/store-products.resolver';
-import { CheckoutSuccessPage as CheckoutSuccessPage } from './views/checkout-success/checkout-success';
+import { CheckoutSuccessComponent } from './views/checkout-success/checkout-success.component';
 
 export const routes: Routes = [
   {
     path: 'home',
-    component: HomePage,
+    component: HomeComponent,
     resolve: { products: productResolver },
     runGuardsAndResolvers: 'paramsOrQueryParamsChange',
   },
   {
     path: 'stores',
-    component: StoresPage,
+    component: StoresComponent,
     resolve: { storeLocations: storeLocationsResolver },
   },
   {
     path: 'product/:productId',
-    component: ProductPage,
+    component: ProductComponent,
     resolve: { product: productDetailResolver },
   },
   {
     path: 'cart',
-    component: CartPage,
+    component: CartComponent,
   },
   {
     path: 'checkout',
-    component: CheckoutPage,
+    component: CheckoutComponent,
   },
   {
     path: 'checkout-success',
-    component: CheckoutSuccessPage
+    component: CheckoutSuccessComponent
   },
   {
     path: 'admin',
-    component: AdminPage,
+    component: AdminComponent,
     children: [
       { path: '', redirectTo: 'manufacturers', pathMatch: 'full' },
       {
         path: 'store/:id',
-        component: Store,
+        component: StoreComponent,
         resolve: {
           storeLocation: storeLocationResolver,
           products: storeProductsResolver,
         },
         runGuardsAndResolvers: 'always',
       },
-      { path: 'manufacturers/create', component: CreateManufacturerPage },
+      { path: 'manufacturers/create', component: CreateManufacturerComponent },
       {
         path: 'manufacturers',
-        component: Manufacturers,
+        component: ManufacturersComponent,
         resolve: { manufacturers: manufacturersResolver },
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
-      { path: 'categories/create', component: CreateCategoryPage },
+      { path: 'categories/create', component: CreateCategoryComponent },
       {
         path: 'categories',
-        component: Categories,
+        component: CategoriesComponent,
         resolve: { categories: categoriesResolver },
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
-      { path: 'products/create', component: CreateProductPage },
+      { path: 'products/create', component: CreateProductComponent },
       {
         path: 'products',
-        component: Products,
+        component: ProductsComponent,
         resolve: { products: productsResolver },
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
-      { path: 'stores/create', component: CreateStorePage },
+      { path: 'stores/create', component: CreateStoreComponent },
       {
         path: 'stores',
-        component: Stores,
+        component: AdminStoresComponent,
         resolve: { storeLocations: storeLocationsResolver },
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
@@ -101,12 +101,12 @@ export const routes: Routes = [
   },
   {
     path: 'auth/callback',
-    component: AuthCallback,
+    component: AuthCallbackComponent,
   },
   {
     path: 'login',
     canActivate: [loginRedirectGuard],
-    component: HomePage,
+    component: HomeComponent,
   },
   {
     path: '**',
