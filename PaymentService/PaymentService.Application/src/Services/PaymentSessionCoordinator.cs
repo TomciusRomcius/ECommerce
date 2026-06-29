@@ -108,7 +108,7 @@ namespace PaymentService.Application.src.Services
             {
                 UserId = details.UserId,
                 OrderId = details.OrderId,
-                Amount = (int)details.Amount // TODO: long
+                Amount = details.Amount
             };
 
             return true;
