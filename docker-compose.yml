@@ -1,13 +1,13 @@
 include:
-  - ./frontend/docker-compose.yml
-  - ./BFF/docker-compose.yml
-  - ./PaymentService/docker-compose.yml
-  - ./ProductService/docker-compose.yml
-  - ./StoreService/docker-compose.yml
-  - ./UserService/docker-compose.yml
-  - ./OrderService/docker-compose.yml
-  - ./ApiWorker/docker-compose.yml
-  - ./docker-compose-debug-tools.yml
+  - ./services/frontend/docker-compose.yml
+  - ./services/BFF/docker-compose.yml
+  - ./services/PaymentService/docker-compose.yml
+  - ./services/ProductService/docker-compose.yml
+  - ./services/StoreService/docker-compose.yml
+  - ./services/UserService/docker-compose.yml
+  - ./services/OrderService/docker-compose.yml
+  - ./services/ApiWorker/docker-compose.yml
+  - ./services/docker-compose-debug-tools.yml
 
 services:
   write-db:
