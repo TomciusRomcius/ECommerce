@@ -62,7 +62,7 @@ public class ReserveProductsHandler(
             productStoreLocation.Stock -= item.Stock;
 
             context.ReservedProducts.Add(
-                new ReservedProductEntity(request.OrderId, item.StoreLocationId, item.ProductId, item.Stock),
+                new ReservedProductEntity(request.OrderId, item.StoreLocationId, item.ProductId, item.Stock)
             );
         }
 

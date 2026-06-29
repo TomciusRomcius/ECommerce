@@ -9,7 +9,6 @@ namespace OrderService.Application.UseCases.OrderFlow;
 
 public class OrderFlowService : IOrderFlowService
 {
-    private readonly IOrderPriceCalculator _orderPriceCalculator;
     private readonly IOrderService _orderService;
     private readonly IPaymentSessionService _paymentSessionService;
     private readonly IProductReservationService _productReservationService;
@@ -17,13 +16,11 @@ public class OrderFlowService : IOrderFlowService
 
     public OrderFlowService(
         IPaymentSessionService paymentSessionService,
-        IOrderPriceCalculator orderPriceCalculator,
         IProductReservationService productReservationService,
         IUserCartService userCartService,
         IOrderService orderService)
     {
         _paymentSessionService = paymentSessionService;
-        _orderPriceCalculator = orderPriceCalculator;
         _productReservationService = productReservationService;
         _userCartService = userCartService;
         _orderService = orderService;

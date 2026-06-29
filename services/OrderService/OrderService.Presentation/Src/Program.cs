@@ -18,7 +18,6 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Med
 builder.Services.AddScoped<IOrderFlowService, OrderFlowService>();
 builder.Services.AddScoped<IPaymentSessionService, PaymentSessionService>();
 builder.Services.AddScoped<IProductReservationService, ProductReservationService>();
-builder.Services.AddScoped<IOrderPriceCalculator, OrderPriceCalculator>();
 builder.Services.AddScoped<IUserCartService, UserCartService>();
 builder.Services.AddOptions<PostgresConfiguration>()
     .Bind(builder.Configuration.GetSection("Database"))
