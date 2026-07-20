@@ -41,30 +41,11 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand>
             return;
         }
 
-        if (request.Updator.Name is not null)
-        {
-            product.Name = request.Updator.Name;
-        }
-
-        if (request.Updator.Description is not null)
-        {
-            product.Description = request.Updator.Description;
-        }
-
-        if (request.Updator.Price is not null)
-        {
-            product.Price = request.Updator.Price.Value;
-        }
-
-        if (request.Updator.ManufacturerId is not null)
-        {
-            product.ManufacturerId = request.Updator.ManufacturerId.Value;
-        }
-
-        if (request.Updator.CategoryId is not null)
-        {
-            product.CategoryId = request.Updator.CategoryId.Value;
-        }
+        product.Name = request.Updator.Name ?? product.Name;
+        product.Description = request.Updator.Description ?? product.Description;
+        product.Price = request.Updator.Price ?? product.Price;
+        product.ManufacturerId = request.Updator.ManufacturerId ?? product.ManufacturerId;
+        product.CategoryId = request.Updator.CategoryId ?? product.CategoryId;
 
         await _context.SaveChangesAsync(cancellationToken);
 
