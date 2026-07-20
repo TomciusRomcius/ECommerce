@@ -6,6 +6,7 @@ public interface IStoreProductsService
 {
     Task<Page<StoreProductDto>> GetProductsAsync(
         int? storeLocationId,
+        string searchText,
         int pageNumber,
         int pageSize,
         string orderBy,

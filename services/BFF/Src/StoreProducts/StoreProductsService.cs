@@ -20,6 +20,7 @@ public class StoreProductsService(
 
     public async Task<Page<StoreProductDto>> GetProductsAsync(
         int? storeLocationId,
+        string searchText,
         int pageNumber,
         int pageSize,
         string orderBy,
@@ -51,8 +52,19 @@ public class StoreProductsService(
                 sp => sp.storeProduct.StoreLocationId,
                 storeLocation => storeLocation.StoreLocationId,
                 (sp, storeLocation) => new { sp.storeProduct, sp.product, sp.category, sp.manufacturer, storeLocation });
+        
+        string normalizedSearchText = searchText.Trim()
+            .Replace("\\", "\\\\")
+            .Replace("%", "\\%")
+            .Replace("_", "\\_");
 
-        int totalCount = await query.CountAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(normalizedSearchText))
+        {
+            string pattern = $"%{normalizedSearchText}%";
+            joinedQuery = joinedQuery.Where(row => EF.Functions.ILike(row.product.Name, pattern));
+        }
+
+        int totalCount = await joinedQuery.CountAsync(cancellationToken);
         var orderedQuery = orderBy.ToLower() switch
         {
             "name" => orderType == OrderType.Ascending

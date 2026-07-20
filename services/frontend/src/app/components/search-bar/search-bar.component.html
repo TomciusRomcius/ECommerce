@@ -1,4 +1,4 @@
 <mat-form-field class="w-full">
     <mat-label>Search items</mat-label>
-    <input (input)="onInput($event)" matInput placeholder="Search items" />
+    <input [value]="text()" (input)="onInput($event)" matInput placeholder="Search items" />
 </mat-form-field>

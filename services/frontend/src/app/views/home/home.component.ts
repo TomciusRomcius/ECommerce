@@ -13,10 +13,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { ItemSorterComponent, OrderColumn, OrderType } from "@components/item-sorter/item-sorter.component";
+import { SearchBarComponent } from "@components/search-bar/search-bar.component";
 
 @Component({
   selector: 'app-home',
-  imports: [CurrencyPipe, MatButtonModule, MatCardModule, MatInputModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, PagePadderComponent, RouterLink, PaginatorComponent, ItemSorterComponent],
+  imports: [CurrencyPipe, MatButtonModule, MatCardModule, MatInputModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatSelectModule, MatIconModule, PagePadderComponent, RouterLink, PaginatorComponent, ItemSorterComponent, SearchBarComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {

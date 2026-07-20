@@ -11,7 +11,10 @@
     <p class="mt-1 text-sm text-gray-500">Products available across all stores</p>
     }
 
-    <app-item-sorter [fields]="sortingFields" [defaultOrderColumn]="defaultSortingColumn" [defaultOrderType]="defaultOrderType" /> 
+    <div class="mt-4 flex flex-wrap items-end gap-4">
+      <app-search-bar class="min-w-64 flex-1" />
+      <app-item-sorter [fields]="sortingFields" [defaultOrderColumn]="defaultSortingColumn" [defaultOrderType]="defaultOrderType" />
+    </div>
   </header>
 
   <div class="grid grid-cols-3 gap-4">

@@ -15,8 +15,9 @@ export const productResolver: ResolveFn<PageModel<ProductModel>> = (
   const storeLocationId = route.queryParamMap.get('storeLocationId');
   const pageNumber = route.queryParamMap.get('pageNumber') ?? '1';
   const pageSize = route.queryParamMap.get('pageSize') ?? '20';
+  const searchText = route.queryParamMap.get('searchText') ?? '';
 
-  const params: Record<string, string> = { pageNumber, pageSize };
+  const params: Record<string, string> = { pageNumber, pageSize, searchText };
   if (storeLocationId) {
     params['storeLocationId'] = storeLocationId;
   }

@@ -18,6 +18,7 @@ public class StoreProductsController(
     [HttpGet]
     public async Task<IActionResult> GetProducts(
         [FromQuery] int? storeLocationId,
+        [FromQuery] string searchText = "",
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string orderBy = "name",
@@ -26,6 +27,7 @@ public class StoreProductsController(
     {
         Page<StoreProductDto> page = await storeProductsService.GetProductsAsync(
             storeLocationId,
+            searchText,
             pageNumber,
             pageSize,
             orderBy,
