@@ -19,4 +19,10 @@ public interface IProductService
         CreateProductRequest request,
         string? authorizationHeader,
         CancellationToken cancellationToken = default);
+
+    Task<HttpResponseMessage> UpdateProductAsync(
+        int productId,
+        UpdateProductRequest request,
+        string? authorizationHeader,
+        CancellationToken cancellationToken = default);
 }

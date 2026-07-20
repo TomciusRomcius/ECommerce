@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import CreateProductRequest from '../models/create-product-request';
 import CreateProductResponse from '../models/create-product-response';
+import UpdateProductRequest from '../models/update-product-request';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +23,19 @@ export class ProductAdminService {
     return this.http.post<CreateProductResponse>(
       `${environment.backendApi}/Products`,
       formData
+    );
+  }
+
+  updateProduct(request: UpdateProductRequest): Observable<void> {
+    return this.http.post<void>(
+      `${environment.backendApi}/Products/${request.productId}`,
+      {
+        name: request.name,
+        description: request.description,
+        price: request.price,
+        manufacturerId: request.manufacturerId,
+        categoryId: request.categoryId,
+      },
     );
   }
 }

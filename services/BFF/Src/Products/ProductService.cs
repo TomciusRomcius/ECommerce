@@ -125,7 +125,7 @@ public class ProductService(
             imageKeys = Array.Empty<string>(),
         });
 
-        using HttpResponseMessage createResponse =
+        HttpResponseMessage createResponse =
             await httpClient.SendAsync(upstreamRequest, cancellationToken);
 
         string createBody = await createResponse.Content.ReadAsStringAsync(cancellationToken);
@@ -188,6 +188,33 @@ public class ProductService(
         }
 
         return createResponse;
+    }
+
+    public async Task<HttpResponseMessage> UpdateProductAsync(
+        int productId,
+        UpdateProductRequest request,
+        string? authorizationHeader,
+        CancellationToken cancellationToken = default)
+    {
+        string upstreamUrl = $"{hosts.Value.ProductServiceUrl}/Product/{productId}";
+        logger.LogDebug("Updating product at {Url}", upstreamUrl);
+
+        using var upstreamRequest = new HttpRequestMessage(HttpMethod.Post, upstreamUrl);
+        if (!string.IsNullOrWhiteSpace(authorizationHeader))
+        {
+            upstreamRequest.Headers.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
+        }
+
+        upstreamRequest.Content = JsonContent.Create(new
+        {
+            name = request.Name,
+            description = request.Description,
+            price = request.Price,
+            manufacturerId = request.ManufacturerId,
+            categoryId = request.CategoryId,
+        });
+
+        return await httpClient.SendAsync(upstreamRequest, cancellationToken);
     }
 
     private ProductWithImageUrlsDto ToProductWithImageUrls(ProductWithImageKeysDto product)

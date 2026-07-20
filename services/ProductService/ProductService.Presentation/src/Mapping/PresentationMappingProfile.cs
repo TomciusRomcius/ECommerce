@@ -2,6 +2,7 @@ using AutoMapper;
 using ProductService.Application.Services;
 using ProductService.Application.UseCases.Product.Commands;
 using ProductService.Domain.Entities;
+using ProductService.Domain.Models;
 using ProductService.Presentation.Controllers.Product.Dtos;
 
 namespace ProductService.Presentation.Mapping;
@@ -35,5 +36,7 @@ public class PresentationMappingProfile : Profile
                 }));
 
         CreateMap<RequestCreateProductDto, CreateProductCommand>();
+
+        CreateMap<RequestUpdateProductDto, UpdateProductModel>();
     }
 }

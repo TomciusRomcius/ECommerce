@@ -1,0 +1,80 @@
+<h2 class="mb-6 text-2xl font-semibold">Edit product</h2>
+
+@if (optionsLoading()) {
+  <p class="mb-4 text-gray-600">Loading manufacturers and categories...</p>
+}
+
+<form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" autocomplete="off" />
+    @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+      <mat-error>Name is required</mat-error>
+    }
+    @if (form.controls.name.hasError('minlength') && form.controls.name.touched) {
+      <mat-error>Name must be at least 5 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" rows="3"></textarea>
+    @if (form.controls.description.hasError('required') && form.controls.description.touched) {
+      <mat-error>Description is required</mat-error>
+    }
+    @if (form.controls.description.hasError('minlength') && form.controls.description.touched) {
+      <mat-error>Description must be at least 5 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Price</mat-label>
+    <input matInput type="number" formControlName="price" min="0.1" step="0.01" />
+    @if (form.controls.price.hasError('required') && form.controls.price.touched) {
+      <mat-error>Price is required</mat-error>
+    }
+    @if (form.controls.price.hasError('min') && form.controls.price.touched) {
+      <mat-error>Price must be at least 0.1</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Manufacturer</mat-label>
+    <mat-select formControlName="manufacturerId" [disabled]="optionsLoading()">
+      @for (manufacturer of manufacturers(); track manufacturer.manufacturerId) {
+        <mat-option [value]="manufacturer.manufacturerId">{{ manufacturer.name }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.manufacturerId.hasError('required') && form.controls.manufacturerId.touched) {
+      <mat-error>Manufacturer is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Category</mat-label>
+    <mat-select formControlName="categoryId" [disabled]="optionsLoading()">
+      @for (category of categories(); track category.categoryId) {
+        <mat-option [value]="category.categoryId">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.categoryId.hasError('required') && form.controls.categoryId.touched) {
+      <mat-error>Category is required</mat-error>
+    }
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    color="primary"
+    type="submit"
+    [disabled]="loading() || optionsLoading() || form.invalid"
+  >
+    Save changes
+  </button>
+</form>
+
+@if (loading()) {
+  <p class="mt-4 text-gray-600">Updating product...</p>
+}
+@if (error()) {
+  <p class="mt-4 text-red-600">{{ error() }}</p>
+}

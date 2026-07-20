@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.UseCases.Product.Commands;
 using ProductService.Application.UseCases.Product.Queries;
 using ProductService.Domain.Entities;
+using ProductService.Domain.Models;
 using ProductService.Domain.Utils;
 using ProductService.Presentation.Controllers.Product.Dtos;
 using ProductService.Presentation.Mapping;
@@ -70,5 +71,18 @@ public class ProductController : ControllerBase
 
         ProductEntity product = result.GetValue();
         return Created(nameof(CreateProducts), new CreateProductResponseDto { ProductId = product.ProductId });
+    }
+
+    [Authorize(Roles = RoleTypes.Admin)]
+    [HttpPost("{productId:int}")]
+    public async Task<IActionResult> UpdateProduct(
+        int productId,
+        [FromBody] RequestUpdateProductDto updateProductDto,
+        CancellationToken cancellationToken = default)
+    {
+        UpdateProductModel updator = _mapper.Map<UpdateProductModel>(updateProductDto);
+
+        await _mediator.Send(new UpdateProductCommand(productId, updator), cancellationToken);
+        return Ok();
     }
 }

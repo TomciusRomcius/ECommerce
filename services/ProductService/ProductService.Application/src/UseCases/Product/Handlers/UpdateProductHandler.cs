@@ -30,14 +30,14 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand>
     public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         _logger.LogTrace("Entered Handle");
-        _logger.LogDebug("Updating product with updator: {@Updator}", request.Updator);
+        _logger.LogDebug("Updating product {ProductId} with updator: {@Updator}", request.ProductId, request.Updator);
 
         var product = await _context.Products
-            .FirstOrDefaultAsync(p => p.ProductId == request.Updator.ProductId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.ProductId == request.ProductId, cancellationToken);
 
         if (product is null)
         {
-            _logger.LogWarning("Failed to update product: product with id: {Id} does not exist", request.Updator.ProductId);
+            _logger.LogWarning("Failed to update product: product with id: {Id} does not exist", request.ProductId);
             return;
         }
 

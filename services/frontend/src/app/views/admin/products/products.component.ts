@@ -2,7 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PaginatorComponent } from '../../../components/paginator/paginator.component';
 import PageModel, { emptyPage } from '../../../models/page-model';
 import ProductModel from '../../../models/product-model';
@@ -16,6 +16,7 @@ import { SearchBarComponent } from "@components/search-bar/search-bar.component"
 })
 export class ProductsComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   products = signal<PageModel<ProductModel>>(
     this.route.snapshot.data['products'] ?? emptyPage(),
   );
@@ -28,7 +29,7 @@ export class ProductsComponent {
   }
 
   edit(product: ProductModel): void {
-    console.log('edit', product);
+    void this.router.navigate(['/admin/products', product.productId, 'edit']);
   }
 
   delete(product: ProductModel): void {

@@ -3,4 +3,4 @@ using ProductService.Domain.Models;
 
 namespace ProductService.Application.UseCases.Product.Commands;
 
-public record UpdateProductCommand(UpdateProductModel Updator) : IRequest;
+public record UpdateProductCommand(int ProductId, UpdateProductModel Updator) : IRequest;

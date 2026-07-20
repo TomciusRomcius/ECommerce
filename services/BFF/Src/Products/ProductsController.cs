@@ -48,9 +48,25 @@ public class ProductsController(IProductService productService) : ControllerBase
         CancellationToken cancellationToken)
     {
         string authorizationHeader = Request.Headers.Authorization.ToString();
-
+        
         using HttpResponseMessage response =
             await productService.CreateProductAsync(request, authorizationHeader, cancellationToken);
+
+        string body = await response.Content.ReadAsStringAsync(cancellationToken);
+        return HttpResponseUtils.FromStringBody((int)response.StatusCode, body);
+    }
+
+    [HttpPost("{productId:int}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProduct(
+        int productId,
+        [FromBody] UpdateProductRequest request,
+        CancellationToken cancellationToken)
+    {
+        string authorizationHeader = Request.Headers.Authorization.ToString();
+
+        using HttpResponseMessage response =
+            await productService.UpdateProductAsync(productId, request, authorizationHeader, cancellationToken);
 
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
         return HttpResponseUtils.FromStringBody((int)response.StatusCode, body);

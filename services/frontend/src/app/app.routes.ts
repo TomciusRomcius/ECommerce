@@ -13,6 +13,8 @@ import { AdminComponent } from './views/admin/admin.component';
 import { CreateManufacturerComponent } from './views/admin/manufacturers/components/create-manufacturer/create-manufacturer.component';
 import { CreateCategoryComponent } from './views/create-category/create-category.component';
 import { CreateProductComponent } from './views/create-product/create-product.component';
+import { EditProductComponent } from './views/edit-product/edit-product.component';
+import { editProductResolver } from './views/edit-product/edit-product.resolver';
 import { CreateStoreComponent } from './views/create-store/create-store.component';
 import { ManufacturersComponent } from './views/admin/manufacturers/manufacturers.component';
 import { manufacturersResolver } from './views/admin/manufacturers/manufacturers.resolver';
@@ -84,6 +86,11 @@ export const routes: Routes = [
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
       { path: 'products/create', component: CreateProductComponent },
+      {
+        path: 'products/:productId/edit',
+        component: EditProductComponent,
+        resolve: { product: editProductResolver },
+      },
       {
         path: 'products',
         component: ProductsComponent,
