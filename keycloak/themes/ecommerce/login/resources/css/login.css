@@ -1,0 +1,465 @@
+/*
+ * Ecommerce Keycloak login theme
+ * Colors and typography mirror the Angular Material cyan/orange frontend theme.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap");
+
+:root {
+  /* Material 3 cyan primary (tone 40 / on-primary / containers) */
+  --ecom-primary: #006a6a;
+  --ecom-on-primary: #ffffff;
+  --ecom-primary-container: #00dddd;
+  --ecom-on-primary-container: #003737;
+  --ecom-primary-hover: #005c5c;
+  --ecom-primary-pressed: #004f4f;
+
+  /* Material 3 orange tertiary */
+  --ecom-tertiary: #964900;
+  --ecom-tertiary-container: #ffb787;
+
+  /* Surfaces / neutrals from Material cyan palette */
+  --ecom-surface: #fafdfc;
+  --ecom-surface-container: #ffffff;
+  --ecom-on-surface: #191c1c;
+  --ecom-on-surface-variant: #3f4948;
+  --ecom-outline: #c4c7c6;
+  --ecom-outline-variant: #e0e3e2;
+  --ecom-error: #ba1a1a;
+  --ecom-error-container: #ffdad6;
+
+  --ecom-radius-sm: 8px;
+  --ecom-radius-md: 12px;
+  --ecom-radius-btn: 20px;
+  --ecom-shadow: 0 1px 2px rgba(25, 28, 28, 0.06), 0 4px 16px rgba(25, 28, 28, 0.08);
+  --ecom-font: "Roboto", system-ui, -apple-system, sans-serif;
+
+  /* Override PatternFly primary tokens so built-in classes pick up our brand */
+  --pf-global--primary-color--100: var(--ecom-primary);
+  --pf-global--primary-color--200: var(--ecom-primary-hover);
+  --pf-global--link--Color: var(--ecom-primary);
+  --pf-global--link--Color--hover: var(--ecom-primary-hover);
+  --pf-global--FontFamily--sans-serif: var(--ecom-font);
+  --pf-global--BackgroundColor--100: var(--ecom-surface-container);
+  --pf-global--Color--100: var(--ecom-on-surface);
+  --pf-global--Color--200: var(--ecom-on-surface-variant);
+}
+
+.subtitle {
+  display: none;
+}
+
+header div {
+  width: 100% !important;
+}
+
+.login-pf {
+  background: none;
+  font-family: var(--ecom-font);
+  color: var(--ecom-on-surface);
+}
+
+.login-pf body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 106, 106, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(150, 73, 0, 0.08), transparent),
+    var(--ecom-surface);
+  background-attachment: fixed;
+  min-height: 100vh;
+  font-family: var(--ecom-font);
+  color: var(--ecom-on-surface);
+}
+
+/* Brand header — realm display name as Material-style brand mark */
+#kc-header {
+  color: var(--ecom-primary);
+  margin: 0 0 0.5rem;
+  overflow: visible;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#kc-header-wrapper {
+  background-image: none !important;
+  color: var(--ecom-primary);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  padding: 1.5rem 1rem 0.75rem;
+  text-indent: 0 !important;
+  text-transform: none;
+  white-space: normal;
+}
+
+.login-pf-page {
+  padding-top: 2.5rem;
+}
+
+.login-pf-page .login-pf-header {
+  margin-bottom: 1rem;
+}
+
+.login-pf-page .login-pf-header h1,
+h1#kc-page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--ecom-on-surface);
+  text-align: center;
+}
+
+/* Card — mirrors mat-card / frontend surfaces */
+.card-pf,
+.ecommerce-card {
+  background: var(--ecom-surface-container);
+  border: 1px solid var(--ecom-outline-variant);
+  border-radius: var(--ecom-radius-md);
+  box-shadow: var(--ecom-shadow);
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 2rem 1.75rem 1.75rem;
+}
+
+#kc-content,
+#kc-content-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+#kc-form-wrapper {
+  margin-top: 0;
+}
+
+/* Labels & inputs — Material-like outlined fields */
+.pf-c-form__label,
+.pf-c-form__label-text,
+label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ecom-on-surface-variant);
+  margin-bottom: 0.35rem;
+}
+
+.pf-c-form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea,
+select {
+  font-family: var(--ecom-font) !important;
+  font-size: 1rem !important;
+  color: var(--ecom-on-surface) !important;
+  background: var(--ecom-surface-container) !important;
+  border: 1px solid var(--ecom-outline) !important;
+  border-radius: var(--ecom-radius-sm) !important;
+  padding: 0.7rem 0.9rem !important;
+  box-shadow: none !important;
+  height: auto !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pf-c-form-control:hover,
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: #a9acab !important;
+}
+
+.pf-c-form-control:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--ecom-primary) !important;
+  box-shadow: 0 0 0 1px var(--ecom-primary) !important;
+}
+
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+/* Primary buttons — mat-flat-button / filled Material style */
+.pf-c-button.pf-m-primary,
+.btn-primary,
+.login-pf-page .btn-primary,
+button[type="submit"],
+input[type="submit"] {
+  font-family: var(--ecom-font) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em;
+  text-transform: none !important;
+  color: var(--ecom-on-primary) !important;
+  background-color: var(--ecom-primary) !important;
+  border: none !important;
+  border-radius: var(--ecom-radius-btn) !important;
+  padding: 0.65rem 1.5rem !important;
+  min-height: 40px;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pf-c-button.pf-m-primary:hover,
+.btn-primary:hover,
+.login-pf-page .btn-primary:hover,
+button[type="submit"]:hover,
+input[type="submit"]:hover {
+  background-color: var(--ecom-primary-hover) !important;
+  box-shadow: 0 1px 3px rgba(0, 106, 106, 0.3) !important;
+}
+
+.pf-c-button.pf-m-primary:active,
+.btn-primary:active,
+button[type="submit"]:active {
+  background-color: var(--ecom-primary-pressed) !important;
+}
+
+.pf-c-button.pf-m-control::after {
+  border: none !important;
+}
+
+.pf-c-button.pf-m-primary:disabled,
+.btn-primary:disabled,
+button[type="submit"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pf-c-button.pf-m-block,
+.btn-block {
+  width: 100%;
+  display: block;
+}
+
+/* Secondary / control buttons */
+.pf-c-button.pf-m-control,
+.btn-default,
+.kc-form-options .btn {
+  font-family: var(--ecom-font) !important;
+  font-weight: 500 !important;
+  color: var(--ecom-primary) !important;
+  background: transparent !important;
+  border: 1px solid var(--ecom-outline-variant) !important;
+  border-radius: var(--ecom-radius-btn) !important;
+  padding: 0.55rem 1.25rem !important;
+}
+
+.pf-c-button.pf-m-control:hover,
+.btn-default:hover {
+  background: rgba(0, 106, 106, 0.06) !important;
+  border-color: var(--ecom-primary) !important;
+}
+
+#kc-form-buttons {
+  margin-top: 0.5rem;
+}
+
+#kc-form-buttons .pf-c-button,
+#kc-form-buttons .btn {
+  margin-top: 0.5rem;
+}
+
+/* Links */
+a,
+.login-pf a {
+  color: var(--ecom-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover,
+.login-pf a:hover {
+  color: var(--ecom-primary-hover);
+  text-decoration: underline;
+}
+
+#kc-registration,
+#kc-registration-container,
+.login-pf-signup {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--ecom-on-surface-variant);
+}
+
+#kc-info-wrapper {
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--ecom-on-surface-variant);
+  padding: 1rem 0 0;
+  text-align: center;
+}
+
+#kc-form-options {
+  margin-bottom: 0.75rem;
+}
+
+#kc-form-options .checkbox label,
+.pf-c-check__label {
+  font-weight: 400;
+  color: var(--ecom-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+/* Alerts */
+.pf-c-alert,
+.alert {
+  border-radius: var(--ecom-radius-sm);
+  border: 1px solid var(--ecom-outline-variant);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.pf-c-alert.pf-m-danger,
+.alert-error {
+  background: var(--ecom-error-container);
+  border-color: var(--ecom-error);
+  color: var(--ecom-error);
+}
+
+.pf-c-alert.pf-m-success,
+.alert-success {
+  background: #e2fffe;
+  border-color: var(--ecom-primary);
+  color: var(--ecom-on-primary-container);
+}
+
+.pf-c-alert.pf-m-warning,
+.alert-warning {
+  background: #ffede4;
+  border-color: var(--ecom-tertiary);
+  color: var(--ecom-tertiary);
+}
+
+.pf-c-alert.pf-m-info,
+.alert-info {
+  background: #e9f3f2;
+  border-color: var(--ecom-outline);
+  color: var(--ecom-on-surface-variant);
+}
+
+.pf-c-form__helper-text.pf-m-error,
+.kc-feedback-text,
+span.kc-input-error {
+  color: var(--ecom-error);
+  font-size: 0.75rem;
+}
+
+/* Social / IdP buttons */
+.kc-social-links .pf-c-button,
+.kc-social-item {
+  border-radius: var(--ecom-radius-btn) !important;
+  border-color: var(--ecom-outline-variant) !important;
+  font-weight: 500;
+}
+
+.kc-social-section {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--ecom-outline-variant);
+  padding-top: 1.25rem;
+}
+
+/* Locale selector */
+#kc-locale-dropdown a,
+#kc-locale-dropdown button {
+  color: var(--ecom-on-surface-variant);
+  font-family: var(--ecom-font);
+}
+
+#kc-locale ul {
+  background: var(--ecom-surface-container);
+  border: 1px solid var(--ecom-outline-variant);
+  border-radius: var(--ecom-radius-sm);
+  box-shadow: var(--ecom-shadow);
+}
+
+/* Password visibility toggle — one shared field border */
+.pf-c-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  background: var(--ecom-surface-container);
+  border: 1px solid var(--ecom-outline);
+  border-radius: var(--ecom-radius-sm);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pf-c-input-group:hover {
+  border-color: #a9acab;
+}
+
+.pf-c-input-group:focus-within {
+  border-color: var(--ecom-primary);
+  box-shadow: 0 0 0 1px var(--ecom-primary);
+}
+
+.pf-c-input-group .pf-c-form-control,
+.pf-c-input-group input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.pf-c-input-group .pf-c-form-control:hover,
+.pf-c-input-group .pf-c-form-control:focus,
+.pf-c-input-group input:hover,
+.pf-c-input-group input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.pf-c-input-group .pf-c-button.pf-m-control,
+.pf-c-input-group button {
+  flex: 0 0 auto;
+  align-self: stretch;
+  margin: 0 !important;
+  padding: 0 0.85rem !important;
+  min-width: 2.75rem;
+  min-height: 100%;
+  color: var(--ecom-on-surface-variant) !important;
+  background: transparent !important;
+  border: none !important;
+  border-left: 1px solid var(--ecom-outline) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.pf-c-input-group .pf-c-button.pf-m-control:hover,
+.pf-c-input-group button:hover {
+  color: var(--ecom-primary) !important;
+  background: rgba(0, 106, 106, 0.06) !important;
+  border-color: var(--ecom-outline) !important;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .login-pf body {
+    background: var(--ecom-surface);
+  }
+
+  .card-pf,
+  .ecommerce-card {
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  #kc-header-wrapper {
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 1rem 1rem 0.5rem;
+    color: var(--ecom-primary);
+  }
+
+  .login-pf-page {
+    padding-top: 1.25rem;
+  }
+}

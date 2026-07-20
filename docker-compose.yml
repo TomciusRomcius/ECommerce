@@ -49,7 +49,14 @@ services:
     restart: on-failure
   keycloak:
     image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --hostname http://localhost:8080/auth --hostname-backchannel-dynamic true --proxy-headers xforwarded
+    command: >
+      start-dev
+      --hostname http://localhost:8080/auth
+      --hostname-backchannel-dynamic true
+      --proxy-headers xforwarded
+      --spi-theme-static-max-age=-1
+      --spi-theme-cache-themes=false
+      --spi-theme-cache-templates=false
     restart: on-failure
     environment:
       KC_DB: postgres
@@ -60,6 +67,8 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
       - 9003:8080
+    volumes:
+      - ./keycloak/themes:/opt/keycloak/themes
 
   keycloak-postgres:
     image: postgres:17.4
