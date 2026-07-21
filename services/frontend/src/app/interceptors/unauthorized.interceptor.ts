@@ -2,11 +2,12 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { ACCESS_TOKEN_KEY } from '../constants/auth';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
 
 export const unauthorizedInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
+  const auth = inject(AuthService);
 
   return next(req).pipe(
     catchError((error: unknown) => {
@@ -16,7 +17,7 @@ export const unauthorizedInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.startsWith(environment.backendApi) &&
         !req.url.endsWith('/token')
       ) {
-        sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+        auth.clearSession();
 
         if (!router.url.startsWith('/login')) {
           void router.navigate(['/login']);

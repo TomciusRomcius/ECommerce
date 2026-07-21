@@ -33,9 +33,17 @@
         type="button"
         class="rounded-full p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
         aria-label="Account"
+        [matMenuTriggerFor]="accountMenu"
       >
         <mat-icon>person</mat-icon>
       </button>
+      <mat-menu #accountMenu="matMenu">
+        @if (isLoggedIn()) {
+          <button mat-menu-item type="button" (click)="logout()">Log out</button>
+        } @else {
+          <a mat-menu-item routerLink="/login">Log in</a>
+        }
+      </mat-menu>
       <a
         routerLink="/cart"
         routerLinkActive="bg-gray-100 text-gray-900"
