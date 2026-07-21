@@ -14,6 +14,7 @@ using PaymentService.Application.Services;
 using PaymentService.Infrastructure.Interfaces;
 using PaymentService.Infrastructure.Services;
 using PaymentService.Presentation.BackgroundServices;
+using ECommerceBackend.Utils.Auth;
 
 // TODO: separate initialization logic
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,7 @@ builder.Services.AddTransient<IPaymentSessionPersistenceService, PaymentSessionP
 builder.Services.AddTransient<IPaymentSessionCoordinator, PaymentSessionCoordinator>();
 builder.Services.AddScoped<IChargeSucceededConsumer, ChargeSucceededConsumer>();
 builder.Services.AddHostedService<ChargeSucceededBackgroundService>();
+builder.Services.AddApplicationAuth(builder);
 
 // Get all stripe webhook event handling strategies and register them to the DI container
 Assembly? infrastructureAssembly = Assembly.GetAssembly(typeof(IStripeWebhookStrategy));
@@ -79,20 +81,6 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    // Wait for database context to establish a database connection and for 
-    // migrator service to apply migrations 
-    int maxTries = 12;
-    int timeoutSeconds = 10;
-    var ctx = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    for (int i = 0; i < maxTries; i++)
-    {
-        if (ctx.Database.CanConnect() && !ctx.Database.GetPendingMigrations().Any())
-        {
-            break;
-        }
-        Task.Delay(TimeSpan.FromSeconds(timeoutSeconds)).Wait();
-    }
-
     WebhookEventStrategyMapContainer c = scope.ServiceProvider.GetRequiredService<WebhookEventStrategyMapContainer>();
     WebhookEventStrategyMap<IStripeWebhookStrategy> stripeStrategyMap = new WebhookEventStrategyMap<IStripeWebhookStrategy>();
 
@@ -109,7 +97,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseApplicationAuth();
 
 app.MapControllers();
 

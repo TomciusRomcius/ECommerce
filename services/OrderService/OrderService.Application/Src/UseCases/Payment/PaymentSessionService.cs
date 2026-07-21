@@ -1,4 +1,6 @@
+using System.Net.Http.Headers;
 using System.Text;
+using ECommerceBackend.Utils.Jwt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -13,15 +15,18 @@ public class PaymentSessionService : IPaymentSessionService
     private readonly HttpClient _httpClient;
     private readonly MicroserviceNetworkConfig _networkConfig;
     private readonly ILogger<PaymentSessionService> _logger;
+    private readonly JwtTokenReader _jwtTokenReader;
 
     public PaymentSessionService(
         HttpClient httpClient,
         IOptions<MicroserviceNetworkConfig> networkConfig,
-        ILogger<PaymentSessionService> logger)
+        ILogger<PaymentSessionService> logger,
+        JwtTokenReader jwtTokenReader)
     {
         _httpClient = httpClient;
         _networkConfig = networkConfig.Value;
         _logger = logger;
+        _jwtTokenReader = jwtTokenReader;
     }
 
     public async Task<Result<PaymentSessionModel>> GeneratePaymentSessionAsync(
@@ -51,8 +56,15 @@ public class PaymentSessionService : IPaymentSessionService
         string requestString = JsonConvert.SerializeObject(messageDictionary);
         StringContent httpContent = new(requestString, Encoding.UTF8, "application/json");
 
-        HttpResponseMessage? response =
-            await _httpClient.PostAsync($"{_networkConfig.PaymentServiceUrl}/paymentsession", httpContent);
+        using HttpRequestMessage request = new(
+            HttpMethod.Post,
+            $"{_networkConfig.PaymentServiceUrl}/paymentsession")
+        {
+            Content = httpContent,
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _jwtTokenReader.AccessToken);
+
+        HttpResponseMessage response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
@@ -87,8 +99,13 @@ public class PaymentSessionService : IPaymentSessionService
     public async Task<Result<PaymentSessionModel?>> GetPaymentSessionAsync(Guid userId)
     {
         _logger.LogTrace("Entered PaymentSessionService.GetPaymentSessionAsync");
-        HttpResponseMessage? response =
-            await _httpClient.GetAsync($"{_networkConfig.PaymentServiceUrl}/paymentsession?userId={userId}");
+
+        using HttpRequestMessage request = new(
+            HttpMethod.Get,
+            $"{_networkConfig.PaymentServiceUrl}/paymentsession?userId={userId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _jwtTokenReader.AccessToken);
+
+        HttpResponseMessage response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
@@ -111,8 +128,12 @@ public class PaymentSessionService : IPaymentSessionService
         _logger.LogTrace("Entered PaymentSessionService.DeletePaymentSessionAsync");
         _logger.LogDebug("Deleting payment session for user {UserId}", userId);
 
-        HttpResponseMessage response =
-            await _httpClient.DeleteAsync($"{_networkConfig.PaymentServiceUrl}/paymentsession?userId={userId}");
+        using HttpRequestMessage request = new(
+            HttpMethod.Delete,
+            $"{_networkConfig.PaymentServiceUrl}/paymentsession?userId={userId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _jwtTokenReader.AccessToken);
+
+        HttpResponseMessage response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(
