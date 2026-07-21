@@ -117,3 +117,6 @@ checkout, and Docker Compose–based local orchestration.
 | http://localhost:8080/userservice/openapi/v1.json    | UserService    | OpenAPI spec                                       |
 | http://localhost:8080/orderservice/openapi/v1.json   | OrderService   | OpenAPI spec                                       |
 | http://localhost:8080/paymentservice/openapi/v1.json | PaymentService | OpenAPI spec                                       |
+
+## Note:
+There are still quite a lot of stuff to maintain. The most critical problem in the current implementations is that some operations are not executed as a single transaction. Eg.: when a user proceeds to checkout, the backend reserves products, creates an order with order products, creates a payment session. If any operation fails in the middle we get an invalid state, so something like a Saga pattern would be needed to overcome this issue.
