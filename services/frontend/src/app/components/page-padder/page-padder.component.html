@@ -19,13 +19,15 @@
       >
         Stores
       </a>
-      <a
-        routerLink="/admin"
-        routerLinkActive="font-semibold text-gray-900"
-        class="text-sm text-gray-600 hover:text-gray-900"
-      >
-        Admin
-      </a>
+      @if (isAdmin()) {
+        <a
+          routerLink="/admin"
+          routerLinkActive="font-semibold text-gray-900"
+          class="text-sm text-gray-600 hover:text-gray-900"
+        >
+          Admin
+        </a>
+      }
     </div>
 
     <div class="flex items-center gap-1">
