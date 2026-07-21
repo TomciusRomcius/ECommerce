@@ -87,6 +87,10 @@ checkout, and Docker Compose–based local orchestration.
   stripe listen --forward-to=http://localhost:8080/paymentservice/webhook/stripe
 ```
 
+### Login credentials for admin:
+* Username: adminuser
+* Password: adminuser
+
 ### Get the admin access token (for accessing the REST API directly):
 
 - Fetch admin JWT token for development (works only in docker compose): <br>
